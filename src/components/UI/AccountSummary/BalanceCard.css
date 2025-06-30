@@ -1,0 +1,48 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.BalanceCardContainer {
+    min-width: 250px;
+    min-height: 145px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: #2f4aff;
+    padding: 1rem;
+}
+
+
+.BalanceTitle,
+.BalanceActual,
+.RiskTitlePct,
+.RiskActualPct {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    color: white;
+}
+
+.BalanceTitle,
+.RiskTitlePct {
+    font-weight: bold;
+}
+
+.BalanceTitle {
+    font-size: 12px;
+}
+
+.BalanceActual {
+    font-size: 30px;
+}
+
+.RiskTitlePct {
+    font-size: 10px;
+}
+
+.RiskActualPct {
+    font-size: 20px;
+}

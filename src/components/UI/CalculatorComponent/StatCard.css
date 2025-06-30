@@ -1,0 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
+}
+
+.StatCardContainer {
+    display: flex;
+    flex-direction: column;
+    min-width: 263.3px;
+    max-width: 263.3px;
+    min-height: 193px;
+    max-height: 193px;
+}
+
+.StatisticHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10px;
+    background-color: #001f6e;
+    max-height: 32.17px;
+    min-height: 32.17px;
+    cursor: grab;
+    position: relative;
+}
+
+.StatisticHeader:active {
+    cursor: grabbing;
+}
+
+.RiskValue,
+.StopValue {
+    color: white;
+    font-size: 12px;
+}
+
+.StatCardContainer:nth-child(2) {
+    margin-bottom: auto;
+}
+
+.CardContent {
+    background-color: #2f4aff;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px;
+}
+
+.StatisticContainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 40%;
+    padding: 20px;
+}
+
+.StatisticTitle,
+.StatisticValue {
+    color: white;
+}
+
+.StatisticTitle {
+    font-size: 10px;
+}
+
+.StatisticValue {
+    font-size: 12px;
+    font-weight: bold;
+}

@@ -1,0 +1,22 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.HeaderContainer {
+    width: 100%;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    background-color: #001F6E;
+}
+
+.HeaderTitle {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: auto;
+    padding: 5px;
+}

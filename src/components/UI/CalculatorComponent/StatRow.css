@@ -1,0 +1,61 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.StatContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.StatHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 83px;
+    max-height: 83px;
+}
+
+.StatContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+    min-height: 44px;
+    max-height: 44px;
+    min-width: 83px;
+    max-height: 83px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number],
+input[type=text] {
+    max-width: 83px;
+    min-width: 83px;
+    min-height: 44px;
+    max-height: 44px;
+}
+
+.highlighted {
+    opacity: 0.75;
+}
+
+.clickable {
+    cursor: pointer;
+}
