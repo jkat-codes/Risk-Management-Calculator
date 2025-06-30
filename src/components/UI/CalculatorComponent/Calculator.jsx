@@ -3,6 +3,7 @@ import './StatRow.css';
 import './StatCard.css';
 import { useState } from 'react';
 import Draggable from 'react-draggable';
+import { DraggableCore } from 'react-draggable';
 import { useRef } from 'react';
 
 export function StatRow({ stats, header, content, onClick }) {
@@ -33,26 +34,19 @@ export function StatRowTickerInput({ stats, header, value, onChange }) {
 }
 
 export function StatCard({ risk, stopPct, stopVal, loss, budget, contracts, onClick }) {
-    const nodeRef = useRef(null);
-
     return (
-        <Draggable
-            handle=".StatisticHeader"
-            bounds="parent"
-        >
-            <div ref={nodeRef} className="StatCardContainer">
-                <div className="StatisticHeader">
-                    <span className="RiskValue">Account Risk: <strong>{risk}</strong></span>
-                    <span className="StopValue">Stop Level: <strong>{stopPct}%</strong></span>
-                </div>
-                <div className="CardContent">
-                    <Statistic title="Max Budget" value={`$${budget}`}></Statistic>
-                    <Statistic title="Contracts" value={contracts}></Statistic>
-                    <Statistic title="Potential Loss" value={`$${loss}`}></Statistic>
-                    <Statistic title="Stop Loss" value={`$${stopVal}`}></Statistic>
-                </div>
-            </div >
-        </Draggable>
+        <div className="StatCardContainer">
+            <div className="StatisticHeader">
+                <span className="RiskValue">Account Risk: <strong>{risk}</strong></span>
+                <span className="StopValue">Stop Level: <strong>{stopPct}%</strong></span>
+            </div>
+            <div className="CardContent">
+                <Statistic title="Max Budget" value={`$${budget}`}></Statistic>
+                <Statistic title="Contracts" value={contracts}></Statistic>
+                <Statistic title="Potential Loss" value={`$${loss}`}></Statistic>
+                <Statistic title="Stop Loss" value={`$${stopVal}`}></Statistic>
+            </div>
+        </div >
     )
 }
 
@@ -130,6 +124,13 @@ function Calculator({ balance, updateBalance }) {
     const MaxBudget4 = stopLevel / 100 !== 0 ? ((PotentialLoss4 / (stopLevel / 100)).toFixed(2)) : 0;
     const MaxBudget5 = stopLevel / 100 !== 0 ? ((PotentialLoss5 / (stopLevel / 100)).toFixed(2)) : 0;
 
+    const NumContracts1 = premiumValue !== 0 ? Math.floor((MaxBudget1 / (premiumValue * 100))).toFixed(0) : 0;
+    const NumContracts2 = premiumValue !== 0 ? Math.floor((MaxBudget2 / (premiumValue * 100))).toFixed(0) : 0;
+    const NumContracts25 = premiumValue !== 0 ? Math.floor((MaxBudget25 / (premiumValue * 100))).toFixed(0) : 0;
+    const NumContracts3 = premiumValue !== 0 ? Math.floor((MaxBudget3 / (premiumValue * 100))).toFixed(0) : 0;
+    const NumContracts4 = premiumValue !== 0 ? Math.floor((MaxBudget4 / (premiumValue * 100))).toFixed(0) : 0;
+    const NumContracts5 = premiumValue !== 0 ? Math.floor((MaxBudget5 / (premiumValue * 100))).toFixed(0) : 0;
+
     const stopCost = (premiumValue * ((100 - stopLevel) / 100)).toFixed(2);
 
     const statsLoss = {
@@ -162,12 +163,12 @@ function Calculator({ balance, updateBalance }) {
                 <StatRow stats={statsProfit} header={"T4=4R"} content={Take4}></StatRow>
             </div>
             <div className="CalculatorCardContainer">
-                <StatCard risk="2.5%" loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="3%" loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="5%" loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="1%" loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="2%" loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="4%" loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="2.5%" contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="3%" contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="5%" contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="1%" contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="2%" contracts={NumContracts4} loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="4%" contracts={NumContracts5} loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel}></StatCard>
             </div>
         </div>
     )

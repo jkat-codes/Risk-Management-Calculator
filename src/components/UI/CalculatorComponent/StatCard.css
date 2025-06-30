@@ -22,12 +22,6 @@
     background-color: #001f6e;
     max-height: 32.17px;
     min-height: 32.17px;
-    cursor: grab;
-    position: relative;
-}
-
-.StatisticHeader:active {
-    cursor: grabbing;
 }
 
 .RiskValue,
