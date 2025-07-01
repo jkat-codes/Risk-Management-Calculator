@@ -75,7 +75,7 @@ function App() {
   return (
     <>
       <div className="MainContainer">
-        <ToastContainer position="top-center" style={{ border: "1px solid green", position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
+        <ToastContainer position="top-center" style={{ position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
         <Header content="Personal Capital"></Header>
         <div className="MainContentContainer">
           <SummaryCard balance={balance}></SummaryCard>
