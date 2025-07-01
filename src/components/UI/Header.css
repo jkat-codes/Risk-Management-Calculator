@@ -8,7 +8,8 @@
 .HeaderContainer {
     width: 100%;
     max-width: 1082px;
-    height: 75px;
+    height: 57px;
+    max-height: 57px;
     display: flex;
     align-items: center;
     background-color: #001F6E;
