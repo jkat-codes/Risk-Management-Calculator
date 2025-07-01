@@ -13,7 +13,10 @@ import { getDropdownMenuPlacement } from 'react-bootstrap/esm/DropdownMenu';
 function App() {
   const [balance, setBalance] = useState({
     total: 29000,
+    liveBalance: 29000,
+    riskPctMax: 10,
     riskPct: 0,
+    liveRiskPct: 0
   })
 
   const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
@@ -28,8 +31,12 @@ function App() {
       return;
     }
 
-    const AmountSpent = Number(data.budget);
-    const AmountRisking = Number(data.risk);
+    const AmountSpent = Number(data.loss);
+
+    const AmountRisking = AmountSpent * 100 / balance.total;
+
+    console.log(AmountRisking);
+
 
     if (AmountRisking + balance.riskPct > 10) {
       console.log("Maximum risk exceeded!");
@@ -52,8 +59,10 @@ function App() {
     } else {
       console.log("Updating balances...");
       setBalance(prevBalance => ({
-        total: prevBalance.total - AmountSpent,
-        riskPct: prevBalance.riskPct + AmountRisking
+        ...prevBalance,
+        liveBalance: prevBalance.liveBalance - AmountSpent,
+        liveRiskPct: prevBalance.liveRiskPct + AmountRisking,
+        riskPct: prevBalance.riskPct + AmountRisking,
       }))
     }
 
@@ -82,18 +91,19 @@ function App() {
           <Calculator balance={balance} onCardClick={handleCardClick}></Calculator>
           <Header content="Current Trades"></Header>
           <TradeHistoryLabels></TradeHistoryLabels>
-          { }
-          {createdTradeComponents.map(component => (
-            <TradeHistoryRow
-              key={component.id}
-              ticker={component.ticker}
-              time="no time yet"
-              premium={component.premium}
-              risk={component.risk}
-              stopPct={component.stopPct}
-              stopVal={component.stopVal}
-            ></TradeHistoryRow>
-          ))}
+          <div className="HistoryContainer">
+            {createdTradeComponents.map(component => (
+              <TradeHistoryRow
+                key={component.id}
+                ticker={component.ticker}
+                time="no time yet"
+                premium={component.premium}
+                risk={component.risk}
+                stopPct={component.stopPct}
+                stopVal={component.stopVal}
+              ></TradeHistoryRow>
+            ))}
+          </div>
         </div>
       </div >
     </>
