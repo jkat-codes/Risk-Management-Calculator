@@ -2,9 +2,8 @@ import './Calculator.css';
 import './StatRow.css';
 import './StatCard.css';
 import { useState } from 'react';
-import Draggable from 'react-draggable';
-import { DraggableCore } from 'react-draggable';
-import { useRef } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export function StatRow({ stats, header, content, onClick }) {
     return (
@@ -33,9 +32,9 @@ export function StatRowTickerInput({ stats, header, value, onChange }) {
     )
 }
 
-export function StatCard({ risk, stopPct, stopVal, loss, budget, contracts, onClick }) {
+export function StatCard({ risk, stopPct, stopVal, loss, budget, contracts, onClick, ticker }) {
     return (
-        <div className="StatCardContainer">
+        <div className="StatCardContainer" onClick={onClick}>
             <div className="StatisticHeader">
                 <span className="RiskValue">Account Risk: <strong>{risk}</strong></span>
                 <span className="StopValue">Stop Level: <strong>{stopPct}%</strong></span>
@@ -59,13 +58,15 @@ export function Statistic({ title, value }) {
     )
 }
 
-function Calculator({ balance, updateBalance }) {
+
+function Calculator({ balance, onCardClick }) {
 
     const totalBalance = balance.total;
 
     const [premium, setPremium] = useState('');
     const [ticker, setTicker] = useState('');
     const [stopLevel, setStopLevel] = useState('');
+
 
     const premiumValue = parseFloat(premium) || 0;
     const tickerValue = ticker;
@@ -97,6 +98,30 @@ function Calculator({ balance, updateBalance }) {
         } else {
             return;
         }
+    }
+
+    const handleCardClick = (data) => {
+        const missingFields = [];
+        if (data.stopVal === "0.00") missingFields.push("Premium");
+        if (data.stopPct === '') missingFields.push("Stop");
+        if (data.ticker === '') missingFields.push("Ticker");
+
+        // Check here for maximum account risk
+
+        if (missingFields.length > 0) {
+            toast.error(`Missing: ${missingFields.join(', ')}`, {
+                position: 'top-right',
+                style: {
+                    position: "absolute",
+                    top: "100px",
+                    right: "20px",
+                    color: "#ff6b6b"
+                }
+            })
+        } else {
+            onCardClick(data);
+        }
+
     }
 
 
@@ -163,7 +188,16 @@ function Calculator({ balance, updateBalance }) {
                 <StatRow stats={statsProfit} header={"T4=4R"} content={Take4}></StatRow>
             </div>
             <div className="CalculatorCardContainer">
-                <StatCard risk="2.5%" contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="2.5%" onClick={() => handleCardClick({
+                    contracts: NumContracts1,
+                    loss: PotentialLoss1,
+                    budget: MaxBudget1,
+                    stopVal: stopCost,
+                    stopPct: stopLevel,
+                    ticker: tickerValue,
+                    premium: premiumValue,
+                    risk: "2.5"
+                })} premium={premiumValue} ticker={tickerValue} contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
                 <StatCard risk="3%" contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
                 <StatCard risk="5%" contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
                 <StatCard risk="1%" contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
