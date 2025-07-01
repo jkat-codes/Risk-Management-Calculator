@@ -4,17 +4,31 @@
   box-sizing: border-box;
 }
 
+:root {
+  overflow-y: hidden;
+}
+
 .MainContainer {
   display: flex;
   width: 1084px;
   max-width: 1084px;
   flex-direction: column;
   margin-bottom: auto;
-  overflow: none;
+  overflow: hidden;
   position: relative;
 }
 
 .MainContentContainer {
   display: flex;
   flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.HistoryContainer {
+  max-width: 1084px;
+  height: 203px;
+  max-height: 203px;
+  min-height: 203px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
