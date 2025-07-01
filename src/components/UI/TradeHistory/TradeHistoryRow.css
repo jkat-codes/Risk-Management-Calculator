@@ -1,0 +1,42 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.HistoryRowContainer {
+    width: 100%;
+    max-width: 1082px;
+    min-height: 30px;
+    max-height: 30px;
+    position: relative;
+    display: flex;
+}
+
+.HistoryRowContainer:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.HistoryRowContainer:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.ColumnLabel {
+    min-width: 77.14px;
+    max-width: 77.14px;
+    max-height: 30px;
+    min-height: 30px;
+    color: black;
+    font-size: 12px;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.HistoryRowContainer select {
+    border-top: none;
+    border-left: none;
+}

@@ -1,0 +1,30 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.LabelsContainer {
+    width: 100%;
+    max-width: 1082px;
+    min-height: 30px;
+    max-height: 30px;
+    background-color: #838fdb;
+    position: relative;
+    display: flex;
+}
+
+.ColumnLabel {
+    min-width: 77.14px;
+    max-width: 77.14px;
+    max-height: 30px;
+    min-height: 30px;
+    color: white;
+    font-size: 12px;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
