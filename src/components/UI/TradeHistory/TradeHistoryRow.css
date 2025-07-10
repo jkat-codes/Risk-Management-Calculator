@@ -36,7 +36,7 @@
     align-items: center;
 }
 
-.HistoryRowContainer select {
+.HistoryRowContainer select input {
     border-top: none;
     border-left: none;
 }

@@ -12,7 +12,13 @@
     max-width: 263.3px;
     min-height: 193px;
     max-height: 193px;
+    cursor: pointer;
 }
+
+.StatCardContainer:hover {
+    scale: 1.05;
+}
+
 
 .StatisticHeader {
     display: flex;

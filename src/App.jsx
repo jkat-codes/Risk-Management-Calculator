@@ -26,6 +26,18 @@ function App() {
     const newId = Date.now();
     const existsAlready = createdTradeComponents.some(component => component.id === newId);
 
+    const now = new Date();
+    const formattedString = now.toLocaleString('en-US', {
+      year: '2-digit',
+      month: 'numeric',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    console.log(formattedString);
+
     if (existsAlready) {
       console.log("Duplicate ID, skipping...");
       return;
@@ -34,9 +46,6 @@ function App() {
     const AmountSpent = Number(data.loss);
 
     const AmountRisking = AmountSpent * 100 / balance.total;
-
-    console.log(AmountRisking);
-
 
     if (AmountRisking + balance.riskPct > 10) {
       console.log("Maximum risk exceeded!");
@@ -75,7 +84,8 @@ function App() {
       stopPct: data.stopPct,
       ticker: (data.ticker).toUpperCase(),
       premium: data.premium,
-      risk: data.risk
+      risk: data.risk,
+      time: formattedString
     }
 
     setCreatedTradeComponents(prev => [...prev, newComponent]);
@@ -96,11 +106,12 @@ function App() {
               <TradeHistoryRow
                 key={component.id}
                 ticker={component.ticker}
-                time="no time yet"
+                time={component.time}
                 premium={component.premium}
                 risk={component.risk}
                 stopPct={component.stopPct}
                 stopVal={component.stopVal}
+                contracts={component.contracts}
               ></TradeHistoryRow>
             ))}
           </div>
