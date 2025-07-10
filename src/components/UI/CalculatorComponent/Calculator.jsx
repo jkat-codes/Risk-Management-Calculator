@@ -188,21 +188,78 @@ function Calculator({ balance, onCardClick }) {
                 <StatRow stats={statsProfit} header={"T4=4R"} content={Take4}></StatRow>
             </div>
             <div className="CalculatorCardContainer">
-                <StatCard risk="1%" onClick={() => handleCardClick({
-                    contracts: NumContracts1,
-                    loss: PotentialLoss1,
-                    budget: MaxBudget1,
-                    stopVal: stopCost,
-                    stopPct: stopLevel,
-                    ticker: tickerValue,
-                    premium: premiumValue,
-                    risk: "1"
-                })} premium={premiumValue} ticker={tickerValue} contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="2%" contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="2.5%" contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="3%" contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="4%" contracts={NumContracts4} loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel}></StatCard>
-                <StatCard risk="5%" contracts={NumContracts5} loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="1%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts1,
+                        loss: PotentialLoss1,
+                        budget: MaxBudget1,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "1"
+                    })}
+                    premium={premiumValue} ticker={tickerValue} contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="2%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts2,
+                        loss: PotentialLoss2,
+                        budget: MaxBudget2,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "2"
+                    })}
+                    contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="2.5%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts25,
+                        loss: PotentialLoss25,
+                        budget: MaxBudget25,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "2.5"
+                    })}
+                    contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="3%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts3,
+                        loss: PotentialLoss3,
+                        budget: MaxBudget3,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "3"
+                    })}
+                    contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="4%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts4,
+                        loss: PotentialLoss4,
+                        budget: MaxBudget4,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "4"
+                    })}
+                    contracts={NumContracts4} loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                <StatCard risk="5%"
+                    onClick={() => handleCardClick({
+                        contracts: NumContracts5,
+                        loss: PotentialLoss5,
+                        budget: MaxBudget5,
+                        stopVal: stopCost,
+                        stopPct: stopLevel,
+                        ticker: tickerValue,
+                        premium: premiumValue,
+                        risk: "5"
+                    })}
+                    contracts={NumContracts5} loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel}></StatCard>
             </div>
         </div>
     )
