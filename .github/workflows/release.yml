@@ -5,7 +5,6 @@ on:
     tags:
       - 'v*'
 
-# This is the key part - we need write permissions
 permissions:
   contents: write
 
@@ -52,8 +51,28 @@ jobs:
 
       - name: Update tauri config with token
         run: |
-          # Replace placeholder in tauri.conf.json with actual token
-          sed -i 's|GITHUB_TOKEN_PLACEHOLDER|${{ secrets.PRIVATE_REPO_TOKEN }}|g' src-tauri/tauri.conf.json
+          python3 << 'EOF'
+          import json
+          import os
+
+          # Read the config file
+          with open('src-tauri/tauri.conf.json', 'r') as f:
+              config = f.read()
+
+          # Replace the placeholder with the actual token
+          token = os.environ.get('PRIVATE_REPO_TOKEN', '')
+          if token:
+              config = config.replace('GITHUB_TOKEN_PLACEHOLDER', token)
+              print("Token replacement completed")
+          else:
+              print("Warning: PRIVATE_REPO_TOKEN not found")
+
+          # Write back the config
+          with open('src-tauri/tauri.conf.json', 'w') as f:
+              f.write(config)
+          EOF
+        env:
+          PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -61,14 +80,13 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }} # This uses the tag name (e.g., v1.0.0)
-          releaseName: 'Risk Calculator v__VERSION__' # __VERSION__ gets replaced
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Risk Calculator v__VERSION__'
           releaseBody: 'See the assets to download this version.'
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
 
-  # Generate and publish latest.json
   generate-updater-json:
     needs: publish-tauri
     runs-on: ubuntu-latest
@@ -97,13 +115,11 @@ jobs:
           }
           EOF
 
-          # Parse release assets and build platforms object
           python3 << 'PYTHON_EOF'
           import json
           import os
           import re
 
-          # Read the release data
           with open('release_data.json', 'w') as f:
               f.write('''${{ steps.release.outputs.release_data }}''')
 
@@ -119,12 +135,10 @@ jobs:
               name = asset['name']
               download_url = asset['browser_download_url']
               
-              # Find corresponding signature file
               sig_name = name + '.sig'
               sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
               
               if sig_asset:
-                  # Determine platform from filename
                   if 'x64-setup.exe' in name or 'x64_en-US.msi' in name:
                       platform_key = 'windows-x86_64'
                   elif 'aarch64.dmg' in name:
@@ -137,7 +151,7 @@ jobs:
                       continue
                   
                   platforms[platform_key] = {
-                      "signature": "SIGNATURE_PLACEHOLDER",  # We'll fill this in next step
+                      "signature": "SIGNATURE_PLACEHOLDER",
                       "url": download_url
                   }
 
@@ -149,7 +163,6 @@ jobs:
 
       - name: Download signatures and update latest.json
         run: |
-          # Download each signature file and update the JSON
           python3 << 'PYTHON_EOF'
           import json
           import requests
@@ -166,14 +179,11 @@ jobs:
               filename = url.split('/')[-1]
               sig_filename = filename + '.sig'
               
-              # Find signature asset
               sig_asset = next((a for a in release['assets'] if a['name'] == sig_filename), None)
               if sig_asset:
-                  # Download signature
                   headers = {'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'}
                   response = requests.get(sig_asset['browser_download_url'], headers=headers)
                   if response.status_code == 200:
-                      # The signature file contains base64, read it directly
                       signature = response.text.strip()
                       update_data['platforms'][platform]['signature'] = signature
 
@@ -186,12 +196,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # Create or switch to releases branch
           git checkout -B releases
-          
-          # Copy latest.json to root
           cp latest.json .
-          
           git add latest.json
           git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
           git push origin releases --force
