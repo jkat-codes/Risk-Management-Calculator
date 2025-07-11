@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "risk-calculator",
+  "version": "0.1.0",
+  "identifier": "com.tauri.dev",
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": "https://github.com/jkat-codes/Risk-Management-Calculator/releases/latest/download/latest.json",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OTdGNDZDMTQ1Q0Q0MkYKUldRdjFGd1ViUFNYOStLWC8xalVHTWpma1pWVlh5UXRQT1pKOFl3anpOZy9xcllBZXFBbjlZZkcK",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  },
+  "build": {
+    "frontendDist": "../src",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Risk Calculator",
+        "width": 1170,
+        "height": 900,
+        "resizable": false,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

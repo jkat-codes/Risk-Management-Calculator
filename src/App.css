@@ -10,8 +10,8 @@
 
 .MainContainer {
   display: flex;
-  width: 1084px;
-  max-width: 1084px;
+  width: 1170px;
+  min-width: 1170px;
   flex-direction: column;
   margin-bottom: auto;
   overflow: hidden;
@@ -25,7 +25,7 @@
 }
 
 .HistoryContainer {
-  max-width: 1084px;
+  max-width: 1170px;
   height: 203px;
   max-height: 203px;
   min-height: 203px;

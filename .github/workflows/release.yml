@@ -1,0 +1,192 @@
+name: 'publish'
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+# This is the key part - we need write permissions
+permissions:
+  contents: write
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'  
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: install frontend dependencies
+        run: npm install
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }} # This uses the tag name (e.g., v1.0.0)
+          releaseName: 'Risk Calculator v__VERSION__' # __VERSION__ gets replaced
+          releaseBody: 'See the assets to download this version.'
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+
+  # Generate and publish latest.json
+  generate-updater-json:
+    needs: publish-tauri
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get release data
+        id: release
+        run: |
+          RELEASE_DATA=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}")
+          echo "release_data<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_DATA" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Generate latest.json
+        run: |
+          cat > latest.json << 'EOF'
+          {
+            "version": "${{ github.ref_name }}",
+            "notes": "Latest release of Risk Calculator",
+            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "platforms": {}
+          }
+          EOF
+
+          # Parse release assets and build platforms object
+          python3 << 'PYTHON_EOF'
+          import json
+          import os
+          import re
+
+          # Read the release data
+          with open('release_data.json', 'w') as f:
+              f.write('''${{ steps.release.outputs.release_data }}''')
+
+          with open('release_data.json', 'r') as f:
+              release = json.load(f)
+
+          with open('latest.json', 'r') as f:
+              update_data = json.load(f)
+
+          platforms = {}
+
+          for asset in release['assets']:
+              name = asset['name']
+              download_url = asset['browser_download_url']
+              
+              # Find corresponding signature file
+              sig_name = name + '.sig'
+              sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
+              
+              if sig_asset:
+                  # Determine platform from filename
+                  if 'x64-setup.exe' in name or 'x64_en-US.msi' in name:
+                      platform_key = 'windows-x86_64'
+                  elif 'aarch64.dmg' in name:
+                      platform_key = 'darwin-aarch64'
+                  elif 'x64.dmg' in name:
+                      platform_key = 'darwin-x86_64'
+                  elif 'amd64.AppImage' in name or 'amd64.deb' in name:
+                      platform_key = 'linux-x86_64'
+                  else:
+                      continue
+                  
+                  platforms[platform_key] = {
+                      "signature": "SIGNATURE_PLACEHOLDER",  # We'll fill this in next step
+                      "url": download_url
+                  }
+
+          update_data['platforms'] = platforms
+
+          with open('latest.json', 'w') as f:
+              json.dump(update_data, f, indent=2)
+          PYTHON_EOF
+
+      - name: Download signatures and update latest.json
+        run: |
+          # Download each signature file and update the JSON
+          python3 << 'PYTHON_EOF'
+          import json
+          import requests
+          import base64
+
+          with open('latest.json', 'r') as f:
+              update_data = json.load(f)
+
+          release_data = '''${{ steps.release.outputs.release_data }}'''
+          release = json.loads(release_data)
+
+          for platform, info in update_data['platforms'].items():
+              url = info['url']
+              filename = url.split('/')[-1]
+              sig_filename = filename + '.sig'
+              
+              # Find signature asset
+              sig_asset = next((a for a in release['assets'] if a['name'] == sig_filename), None)
+              if sig_asset:
+                  # Download signature
+                  headers = {'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'}
+                  response = requests.get(sig_asset['browser_download_url'], headers=headers)
+                  if response.status_code == 200:
+                      # The signature file contains base64, read it directly
+                      signature = response.text.strip()
+                      update_data['platforms'][platform]['signature'] = signature
+
+          with open('latest.json', 'w') as f:
+              json.dump(update_data, f, indent=2)
+          PYTHON_EOF
+
+      - name: Commit latest.json to releases branch
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Create or switch to releases branch
+          git checkout -B releases
+          
+          # Copy latest.json to root
+          cp latest.json .
+          
+          git add latest.json
+          git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
+          git push origin releases --force

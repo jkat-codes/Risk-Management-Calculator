@@ -23,14 +23,18 @@ function App() {
 
   const handleCardClick = (data) => {
 
+    if (data.contracts <= 0) {
+      return;
+    }
+
     const newId = Date.now();
     const existsAlready = createdTradeComponents.some(component => component.id === newId);
 
     const now = new Date();
     const formattedString = now.toLocaleString('en-US', {
       year: '2-digit',
-      month: 'numeric',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
@@ -43,9 +47,9 @@ function App() {
       return;
     }
 
-    const AmountSpent = Number(data.loss);
+    const AmountSpent = Number(data.contracts) * Number(data.premium) * 100;
 
-    const AmountRisking = AmountSpent * 100 / balance.total;
+    const AmountRisking = Number(data.loss) * 100 / balance.total;
 
     if (AmountRisking + balance.riskPct > 10) {
       console.log("Maximum risk exceeded!");
@@ -88,12 +92,46 @@ function App() {
       time: formattedString
     }
 
-    setCreatedTradeComponents(prev => [...prev, newComponent]);
+    setCreatedTradeComponents(prev => [newComponent, ...prev]);
+  }
+
+  const handleConfirmTrade = (tradeId, closeData) => {
+    const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type } = closeData;
+
+    const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
+
+    if (!tradeToClose) {
+      console.log("Trade not found!");
+      return;
+    }
+
+    setBalance(prevBalance => ({
+      ...prevBalance,
+      liveBalance: prevBalance.liveBalance + revenue,
+      liveRiskPct: Math.max(0, prevBalance.liveRiskPct - risk),
+      riskPct: Math.max(0, prevBalance.riskPct - risk)
+    }))
+
+    setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
+
+    // Add to supabase here
+
+    // Notify successful close
+    toast.success('Position closed successfully!', {
+      position: 'top-right',
+      style: {
+        position: "absolute",
+        top: "100px",
+        right: "20px"
+      }
+    })
+
+
   }
 
   return (
     <>
-      <div className="MainContainer">
+      <div className="MainContainer" id="MainContainer">
         <ToastContainer position="top-center" style={{ position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
         <Header content="Personal Capital"></Header>
         <div className="MainContentContainer">
@@ -105,6 +143,7 @@ function App() {
             {createdTradeComponents.map(component => (
               <TradeHistoryRow
                 key={component.id}
+                id={component.id}
                 ticker={component.ticker}
                 time={component.time}
                 premium={component.premium}
@@ -112,6 +151,7 @@ function App() {
                 stopPct={component.stopPct}
                 stopVal={component.stopVal}
                 contracts={component.contracts}
+                onConfirm={handleConfirmTrade}
               ></TradeHistoryRow>
             ))}
           </div>

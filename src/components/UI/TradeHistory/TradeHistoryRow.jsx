@@ -1,8 +1,14 @@
 import React from "react";
 import { useState } from "react";
+import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
+import { toast } from "react-toastify";
 
-function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contracts }) {
+function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm }) {
+
+    if (contracts <= 0) {
+        return;
+    }
 
     const [ProfitLossVal, setProfitLossVal] = useState(0);
     const [ProfitLossPctVal, setProfitLossPctVal] = useState(0);
@@ -10,14 +16,14 @@ function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contra
     const [CloseValue, setCloseValue] = useState(0);
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
-
+    const [showModal, setShowModal] = useState(false);
 
     const Take1 = (premium * 1.25).toFixed(2);
     const Take2 = (premium * 1.5).toFixed(2);
     const Take3 = (premium * 1.75).toFixed(2);
     const Take4 = (premium * 2).toFixed(2);
 
-    const value = ProfitLossVal;
+    var value = ProfitLossVal;
     const TradeType = TradeTypeVal;
     const ProfitLossPct = ProfitLossPctVal;
     const Close = CloseValue;
@@ -44,14 +50,75 @@ function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contra
             take = Number(take);
             stop = Number(stop);
 
+
+            setProfitLossVal((take * contracts * 100) - (premium * contracts * 100));
+            setProfitLossPctVal((((take * contracts * 100) - (premium * contracts * 100)) / (premium * contracts * 100)) * 100);
+
             if (take > stop) {
                 // Reset Stop Value and Stop Percent (break even)
                 setStopValue(premium);
                 setStopPercent(0);
+
             }
 
             setCloseValue(takeString);
         }
+    }
+
+    const handleOpenModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
+
+    const handleConfirmSuccess = (e) => {
+        const parent = e.target.parentNode;
+        const children = parent.childNodes;
+        const price = Number(children[1].childNodes[1].value);
+
+        if (price === "0" || price === 0) {
+            var EmptyPrice = children[1].childNodes[1];
+            EmptyPrice.style.border = "1px solid red";
+            EmptyPrice.animate([
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0px)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(0px)' },
+            ],
+                {
+                    duration: 500,
+                    easing: 'ease-out',
+                    iterations: 1,
+                    fill: 'forwards'
+                }
+            )
+            return;
+        }
+
+        const contracts = Number(children[2].childNodes[1].value);
+
+        const revenue = contracts * 100 * price;
+        const cost = contracts * 100 * premium;
+        const profit = revenue - cost;
+
+        console.log("Cost: ", cost);
+        console.log("Revenue: ", revenue);
+        console.log("Profit: ", profit);
+
+        const closeData = {
+            cost: cost,
+            revenue: revenue,
+            profit: profit,
+            risk: risk,
+            stopPct: ProfitLossPct,
+            stopVal: value,
+            contracts: contracts,
+            time: time,
+            ticker: ticker,
+            premium: premium,
+            type: TradeType
+        }
+
+        onConfirm(id, closeData)
+
+        setShowModal(false);
     }
 
     return (
@@ -72,16 +139,16 @@ function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contra
                     whiteSpace: 'nowrap'
                 }} />
             </span>
-            <span className="ColumnLabel">${premium}</span>
+            <span className="ColumnLabel">${premium.toFixed(2)}</span>
             <span className="ColumnLabel">{risk}%</span>
-            <span className="ColumnLabel" onClick={HandleRowClick}>${StopValue}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
-            <span className="ColumnLabel" onClick={HandleRowClick}>${Take1}</span>
-            <span className="ColumnLabel" onClick={HandleRowClick}>${Take2}</span>
-            <span className="ColumnLabel" onClick={HandleRowClick}>${Take3}</span>
-            <span className="ColumnLabel" onClick={HandleRowClick}>${Take4}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take2}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take3}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take4}</span>
             <span className="ColumnLabel">
-                <input id="ProfitLossVal" type='number' onChange={PLValChange} value={value && parseFloat(value) > 0 ? value : ''} style={{
+                <input id="ProfitLossVal" type='number' onChange={PLValChange} value={value} style={{
                     width: '100%',
                     height: '100%',
                     border: 'none',
@@ -95,7 +162,7 @@ function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contra
                 }} />
             </span>
             <span className="ColumnLabel">
-                <input id="ProfitLossPct" type='number' onChange={PLPctChange} value={ProfitLossPct && parseInt(ProfitLossPct) > 0 ? ProfitLossPct : ''} style={{
+                <input id="ProfitLossPct" type='number' onChange={PLPctChange} value={ProfitLossPct} style={{
                     width: '100%',
                     height: '100%',
                     border: 'none',
@@ -109,6 +176,10 @@ function TradeHistoryRow({ ticker, time, premium, risk, stopPct, stopVal, contra
                 }} />
             </span>
             <span className="ColumnLabel">{Close && parseFloat(Close) > 0 ? Close : ''}</span>
+            <span className="ColumnLabel clickable">
+                <button className="ConfirmBtn" onClick={handleOpenModal}>Close Pos</button>
+                {showModal && <ConfirmationModal onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+            </span>
         </div>
     )
 }

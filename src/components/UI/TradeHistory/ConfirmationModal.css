@@ -1,0 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ModalOverlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.01);
+    backdrop-filter: blur(2px);
+}
+
+
+.ModalContent {
+    background-color: #f3f3f3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    max-width: 556px;
+    position: relative;
+}
+
+.ModalContent Header {
+    margin-bottom: auto;
+    padding: -20px;
+}
+
+.PositionField {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    padding: 5px;
+    gap: 5px;
+}
+
+.PositionField:nth-child(even) {
+    padding-left: 20px;
+}
+
+.PositionField:nth-child(4),
+.PositionField:nth-child(5) {
+    padding-bottom: 20px;
+}
+
+.PositionHeader {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.PositionField input {
+    border: none;
+    background-color: #ffffff;
+    min-height: 30px;
+    max-height: 30px;
+    min-width: 221px;
+    border: 1px solid rgba(0, 0, 0, 0.55);
+    padding: 5px;
+}
+
+.btn {
+    margin-bottom: 20px;
+    padding: 8px 30px;
+    border: none;
+    background: none;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.btn-confirm {
+    color: white;
+    background-color: #001f6e;
+    margin-right: 62px;
+}
+
+.btn-cancel {
+    color: #696969;
+    background-color: #e2e2e2;
+    margin-left: auto;
+}

@@ -6,13 +6,12 @@
 }
 
 .LabelsContainer {
-    width: 100%;
-    max-width: 1082px;
     min-height: 30px;
     max-height: 30px;
     background-color: #838fdb;
     position: relative;
     display: flex;
+    flex-shrink: 0;
 }
 
 .ColumnLabel {
@@ -28,4 +27,13 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }

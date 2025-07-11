@@ -7,11 +7,11 @@
 
 .HistoryRowContainer {
     width: 100%;
-    max-width: 1082px;
     min-height: 30px;
     max-height: 30px;
     position: relative;
     display: flex;
+    flex-shrink: 0;
 }
 
 .HistoryRowContainer:nth-child(odd) {
@@ -23,6 +23,7 @@
 }
 
 .ColumnLabel {
+    position: relative;
     min-width: 77.14px;
     max-width: 77.14px;
     max-height: 30px;
@@ -39,4 +40,14 @@
 .HistoryRowContainer select input {
     border-top: none;
     border-left: none;
+}
+
+.ConfirmBtn {
+    position: relative;
+    background: transparent;
+    width: 100%;
+    height: 100%;
+    border: none;
+    cursor: pointer;
+    background-color: #85b278;
 }

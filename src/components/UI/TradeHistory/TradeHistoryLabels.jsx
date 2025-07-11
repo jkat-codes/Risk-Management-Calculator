@@ -19,6 +19,7 @@ function TradeHistoryLabels() {
             <span className="ColumnLabel">P / L $</span>
             <span className="ColumnLabel">P / L %</span>
             <span className="ColumnLabel">Close</span>
+            <span className="ColumnLabel">Confirm</span>
         </div>
     )
 }
