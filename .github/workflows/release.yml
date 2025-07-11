@@ -50,6 +50,11 @@ jobs:
       - name: install frontend dependencies
         run: npm install
 
+      - name: Update tauri config with token
+        run: |
+          # Replace placeholder in tauri.conf.json with actual token
+          sed -i 's|GITHUB_TOKEN_PLACEHOLDER|${{ secrets.PRIVATE_REPO_TOKEN }}|g' src-tauri/tauri.conf.json
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
