@@ -20,8 +20,6 @@ jobs:
             args: '--target aarch64-apple-darwin'
           - platform: 'macos-latest'  
             args: '--target x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
           - platform: 'windows-latest'
             args: ''
 
@@ -58,8 +56,9 @@ jobs:
         run: npm install
 
       - name: Update tauri config with token
+        shell: bash
         run: |
-          python3 << 'EOF'
+          cat > replace_token.py << 'EOF'
           import json
           import os
 
@@ -79,6 +78,8 @@ jobs:
           with open('src-tauri/tauri.conf.json', 'w') as f:
               f.write(config)
           EOF
+          
+          python3 replace_token.py
         env:
           PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
@@ -113,6 +114,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Generate latest.json
+        shell: bash
         run: |
           cat > latest.json << 'EOF'
           {
@@ -123,7 +125,7 @@ jobs:
           }
           EOF
 
-          python3 << 'PYTHON_EOF'
+          cat > parse_release.py << 'EOF'
           import json
           import os
           import re
@@ -167,11 +169,14 @@ jobs:
 
           with open('latest.json', 'w') as f:
               json.dump(update_data, f, indent=2)
-          PYTHON_EOF
+          EOF
+          
+          python3 parse_release.py
 
       - name: Download signatures and update latest.json
+        shell: bash
         run: |
-          python3 << 'PYTHON_EOF'
+          cat > download_signatures.py << 'EOF'
           import json
           import requests
           import base64
@@ -197,9 +202,12 @@ jobs:
 
           with open('latest.json', 'w') as f:
               json.dump(update_data, f, indent=2)
-          PYTHON_EOF
+          EOF
+          
+          python3 download_signatures.py
 
       - name: Commit latest.json to releases branch
+        shell: bash
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
