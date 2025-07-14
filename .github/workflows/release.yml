@@ -213,7 +213,13 @@ jobs:
           git config --local user.name "GitHub Action"
           
           git checkout -B releases
-          cp latest.json .
-          git add latest.json
-          git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
-          git push origin releases --force
+          
+          # Check if latest.json exists and add it
+          if [ -f "latest.json" ]; then
+            git add latest.json
+            git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
+            git push origin releases --force
+          else
+            echo "latest.json not found"
+            exit 1
+          fi
