@@ -5,6 +5,7 @@ import SummaryCard from './components/UI/AccountSummary/SummaryCard';
 import Calculator from './components/UI/CalculatorComponent/Calculator';
 import TradeHistoryLabels from './components/UI/TradeHistory/TradeHistoryLabels';
 import TradeHistoryRow from './components/UI/TradeHistory/TradeHistoryRow';
+import Updater from './services/updater/updater';
 import './App.css'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -132,6 +133,7 @@ function App() {
   return (
     <>
       <div className="MainContainer" id="MainContainer">
+        <Updater></Updater>
         <ToastContainer position="top-center" style={{ position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
         <Header content="Personal Capital"></Header>
         <div className="MainContentContainer">
