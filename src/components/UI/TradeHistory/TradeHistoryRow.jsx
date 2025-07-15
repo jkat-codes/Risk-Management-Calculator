@@ -105,10 +105,6 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         const cost = contracts * 100 * premium;
         const profit = revenue - cost;
 
-        // console.log("Cost: ", cost);
-        // console.log("Revenue: ", revenue);
-        // console.log("Profit: ", profit);
-
         const closeData = {
             cost: cost,
             revenue: revenue,
