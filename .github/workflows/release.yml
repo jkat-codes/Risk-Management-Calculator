@@ -20,6 +20,8 @@ jobs:
             args: '--target aarch64-apple-darwin'
           - platform: 'macos-latest'  
             args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
           - platform: 'windows-latest'
             args: ''
 
@@ -102,7 +104,8 @@ jobs:
         env:
           PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: build the app
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -114,6 +117,77 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
+
+      - name: Wait for release to be fully created
+        shell: bash
+        run: |
+          echo "Waiting 30 seconds for release to be fully processed..."
+          sleep 30
+
+      - name: Debug build artifacts
+        shell: bash
+        run: |
+          echo "=== Checking for signature files ==="
+          find . -name "*.sig" -type f -exec ls -la {} \; || echo "No .sig files found"
+          
+          echo "=== All files in target/release/bundle ==="
+          find ./src-tauri/target -type f -name "*" | head -20
+          
+          echo "=== Specifically looking for bundles and sigs ==="
+          find ./src-tauri/target -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.sig" 2>/dev/null || echo "No bundle files found"
+          
+          echo "=== Environment variables ==="
+          echo "TAURI_SIGNING_PRIVATE_KEY set: $([ -n "$TAURI_SIGNING_PRIVATE_KEY" ] && echo "YES" || echo "NO")"
+          echo "GITHUB_TOKEN set: $([ -n "$GITHUB_TOKEN" ] && echo "YES" || echo "NO")"
+
+      - name: Upload missing signature files
+        shell: bash
+        run: |
+          # Install jq based on platform
+          if [[ "${{ matrix.platform }}" == "ubuntu-"* ]]; then
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [[ "${{ matrix.platform }}" == "macos-"* ]]; then
+            brew install jq
+          elif [[ "${{ matrix.platform }}" == "windows-"* ]]; then
+            # Use GitHub's pre-installed jq on Windows
+            echo "Using pre-installed jq on Windows"
+          fi
+          
+          echo "=== Checking what got uploaded to release ==="
+          RELEASE_DATA=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}")
+          
+          echo "Release assets:"
+          echo "$RELEASE_DATA" | jq -r '.assets[].name' || echo "Failed to parse release data"
+          
+          echo "=== Looking for signature files that might need manual upload ==="
+          for sig_file in $(find ./src-tauri/target -name "*.sig" -type f 2>/dev/null); do
+            echo "Found signature file: $sig_file"
+            filename=$(basename "$sig_file")
+            
+            # Check if this signature file was already uploaded
+            asset_exists=$(echo "$RELEASE_DATA" | jq -r --arg name "$filename" '.assets[] | select(.name == $name) | .name' 2>/dev/null)
+            
+            if [ -z "$asset_exists" ]; then
+              echo "Signature file $filename was not uploaded, uploading manually..."
+              
+              # Get upload URL
+              upload_url=$(echo "$RELEASE_DATA" | jq -r '.upload_url' | sed 's/{?name,label}//')
+              
+              # Upload the signature file
+              response=$(curl -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$sig_file" \
+                "${upload_url}?name=${filename}" \
+                -w "HTTP_CODE:%{http_code}")
+              
+              echo "Upload response: $response"
+              echo "Uploaded $filename"
+            else
+              echo "Signature file $filename already exists in release"
+            fi
+          done
 
   generate-updater-json:
     needs: publish-tauri
@@ -174,38 +248,42 @@ jobs:
               
               print(f"Processing asset: {name}")
               
-              # Skip signature files for now
+              # Skip signature files
               if name.endswith('.sig'):
                   continue
               
-              # Find corresponding signature file
-              sig_name = name + '.sig'
-              sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
+              # Determine platform from filename
+              platform_key = None
+              if any(x in name.lower() for x in ['x64-setup.exe', 'x64_en-us.msi', '_x64_en-us.msi']):
+                  platform_key = 'windows-x86_64'
+              elif 'aarch64.dmg' in name.lower():
+                  platform_key = 'darwin-aarch64'
+              elif any(x in name.lower() for x in ['x64.dmg', '_x64.dmg']):
+                  platform_key = 'darwin-x86_64'
+              elif any(x in name.lower() for x in ['amd64.appimage', 'amd64.deb', '_amd64.appimage']):
+                  platform_key = 'linux-x86_64'
               
-              if sig_asset:
-                  print(f"Found signature for: {name}")
+              if platform_key:
+                  print(f"Mapped {name} to platform: {platform_key}")
                   
-                  # Determine platform from filename
-                  platform_key = None
-                  if any(x in name.lower() for x in ['x64-setup.exe', 'x64_en-us.msi', '_x64_en-us.msi']):
-                      platform_key = 'windows-x86_64'
-                  elif 'aarch64.dmg' in name.lower():
-                      platform_key = 'darwin-aarch64'
-                  elif any(x in name.lower() for x in ['x64.dmg', '_x64.dmg']):
-                      platform_key = 'darwin-x86_64'
-                  elif any(x in name.lower() for x in ['amd64.appimage', 'amd64.deb', '_amd64.appimage']):
-                      platform_key = 'linux-x86_64'
+                  # Check if signature file exists
+                  sig_name = name + '.sig'
+                  sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
                   
-                  if platform_key:
-                      print(f"Mapped {name} to platform: {platform_key}")
+                  if sig_asset:
+                      print(f"Found signature for: {name}")
                       platforms[platform_key] = {
                           "signature": "SIGNATURE_PLACEHOLDER",
                           "url": download_url
                       }
                   else:
-                      print(f"Could not determine platform for: {name}")
+                      print(f"WARNING: No signature found for: {name}")
+                      # For now, we'll still add it but this should be investigated
+                      platforms[platform_key] = {
+                          "url": download_url
+                      }
               else:
-                  print(f"No signature found for: {name}")
+                  print(f"Could not determine platform for: {name}")
 
           print(f"Final platforms: {list(platforms.keys())}")
           update_data['platforms'] = platforms
@@ -218,13 +296,12 @@ jobs:
           
           python3 parse_release.py
 
-      - name: Download signatures and update latest.json
+      - name: Download signatures and update latest.json (if signatures exist)
         shell: bash
         run: |
           cat > download_signatures.py << 'EOF'
           import json
           import requests
-          import base64
 
           with open('latest.json', 'r') as f:
               update_data = json.load(f)
@@ -233,20 +310,38 @@ jobs:
           release = json.loads(release_data)
 
           for platform, info in update_data['platforms'].items():
-              url = info['url']
-              filename = url.split('/')[-1]
-              sig_filename = filename + '.sig'
-              
-              sig_asset = next((a for a in release['assets'] if a['name'] == sig_filename), None)
-              if sig_asset:
-                  headers = {'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'}
-                  response = requests.get(sig_asset['browser_download_url'], headers=headers)
-                  if response.status_code == 200:
-                      signature = response.text.strip()
-                      update_data['platforms'][platform]['signature'] = signature
+              # Only try to download signature if the platform entry has a signature placeholder
+              if 'signature' in info and info['signature'] == 'SIGNATURE_PLACEHOLDER':
+                  url = info['url']
+                  filename = url.split('/')[-1]
+                  sig_filename = filename + '.sig'
+                  
+                  sig_asset = next((a for a in release['assets'] if a['name'] == sig_filename), None)
+                  if sig_asset:
+                      try:
+                          headers = {'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'}
+                          response = requests.get(sig_asset['browser_download_url'], headers=headers)
+                          if response.status_code == 200:
+                              signature = response.text.strip()
+                              update_data['platforms'][platform]['signature'] = signature
+                              print(f"Downloaded signature for {platform}")
+                          else:
+                              print(f"Failed to download signature for {platform}: {response.status_code}")
+                              # Remove signature field if download failed
+                              del update_data['platforms'][platform]['signature']
+                      except Exception as e:
+                          print(f"Error downloading signature for {platform}: {e}")
+                          # Remove signature field if download failed
+                          del update_data['platforms'][platform]['signature']
+                  else:
+                      print(f"Signature asset not found for {platform}")
+                      # Remove signature field if asset not found
+                      del update_data['platforms'][platform]['signature']
 
           with open('latest.json', 'w') as f:
               json.dump(update_data, f, indent=2)
+          
+          print("Updated signatures in latest.json")
           EOF
           
           python3 download_signatures.py
