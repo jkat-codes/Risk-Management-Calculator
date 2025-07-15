@@ -66,20 +66,39 @@ jobs:
           with open('src-tauri/tauri.conf.json', 'r') as f:
               config = f.read()
 
+          print("Before replacement:")
+          print("GITHUB_TOKEN_PLACEHOLDER found:", "GITHUB_TOKEN_PLACEHOLDER" in config)
+          
           # Replace the placeholder with the actual token
           token = os.environ.get('PRIVATE_REPO_TOKEN', '')
           if token:
               config = config.replace('GITHUB_TOKEN_PLACEHOLDER', token)
               print("Token replacement completed")
+              print("After replacement - placeholder still found:", "GITHUB_TOKEN_PLACEHOLDER" in config)
           else:
-              print("Warning: PRIVATE_REPO_TOKEN not found")
+              print("ERROR: PRIVATE_REPO_TOKEN not found in environment")
 
           # Write back the config
           with open('src-tauri/tauri.conf.json', 'w') as f:
               f.write(config)
+              
+          # Validate JSON structure
+          try:
+              with open('src-tauri/tauri.conf.json', 'r') as f:
+                  json_data = json.load(f)
+              print("JSON validation: SUCCESS")
+              print("Endpoints type:", type(json_data.get('plugins', {}).get('updater', {}).get('endpoints', 'Not found')))
+          except Exception as e:
+              print("JSON validation: FAILED -", str(e))
           EOF
           
+          echo "Config before replacement:"
+          grep -n "endpoints" src-tauri/tauri.conf.json || echo "endpoints not found"
+          
           python3 replace_token.py
+          
+          echo "Config after replacement:"
+          grep -n "endpoints" src-tauri/tauri.conf.json || echo "endpoints not found"
         env:
           PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
 
@@ -116,11 +135,14 @@ jobs:
       - name: Generate latest.json
         shell: bash
         run: |
-          cat > latest.json << 'EOF'
+          # Generate current timestamp
+          CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          cat > latest.json << EOF
           {
             "version": "${{ github.ref_name }}",
             "notes": "Latest release of Risk Calculator",
-            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "pub_date": "${CURRENT_DATE}",
             "platforms": {}
           }
           EOF
@@ -130,9 +152,12 @@ jobs:
           import os
           import re
 
+          # Write release data to file
+          release_json = '''${{ steps.release.outputs.release_data }}'''
           with open('release_data.json', 'w') as f:
-              f.write('''${{ steps.release.outputs.release_data }}''')
+              f.write(release_json)
 
+          # Parse release data
           with open('release_data.json', 'r') as f:
               release = json.load(f)
 
@@ -140,35 +165,55 @@ jobs:
               update_data = json.load(f)
 
           platforms = {}
+          
+          print(f"Processing {len(release['assets'])} assets...")
 
           for asset in release['assets']:
               name = asset['name']
               download_url = asset['browser_download_url']
               
+              print(f"Processing asset: {name}")
+              
+              # Skip signature files for now
+              if name.endswith('.sig'):
+                  continue
+              
+              # Find corresponding signature file
               sig_name = name + '.sig'
               sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
               
               if sig_asset:
-                  if 'x64-setup.exe' in name or 'x64_en-US.msi' in name:
-                      platform_key = 'windows-x86_64'
-                  elif 'aarch64.dmg' in name:
-                      platform_key = 'darwin-aarch64'
-                  elif 'x64.dmg' in name:
-                      platform_key = 'darwin-x86_64'
-                  elif 'amd64.AppImage' in name or 'amd64.deb' in name:
-                      platform_key = 'linux-x86_64'
-                  else:
-                      continue
+                  print(f"Found signature for: {name}")
                   
-                  platforms[platform_key] = {
-                      "signature": "SIGNATURE_PLACEHOLDER",
-                      "url": download_url
-                  }
+                  # Determine platform from filename
+                  platform_key = None
+                  if any(x in name.lower() for x in ['x64-setup.exe', 'x64_en-us.msi', '_x64_en-us.msi']):
+                      platform_key = 'windows-x86_64'
+                  elif 'aarch64.dmg' in name.lower():
+                      platform_key = 'darwin-aarch64'
+                  elif any(x in name.lower() for x in ['x64.dmg', '_x64.dmg']):
+                      platform_key = 'darwin-x86_64'
+                  elif any(x in name.lower() for x in ['amd64.appimage', 'amd64.deb', '_amd64.appimage']):
+                      platform_key = 'linux-x86_64'
+                  
+                  if platform_key:
+                      print(f"Mapped {name} to platform: {platform_key}")
+                      platforms[platform_key] = {
+                          "signature": "SIGNATURE_PLACEHOLDER",
+                          "url": download_url
+                      }
+                  else:
+                      print(f"Could not determine platform for: {name}")
+              else:
+                  print(f"No signature found for: {name}")
 
+          print(f"Final platforms: {list(platforms.keys())}")
           update_data['platforms'] = platforms
 
           with open('latest.json', 'w') as f:
               json.dump(update_data, f, indent=2)
+          
+          print("Generated latest.json successfully")
           EOF
           
           python3 parse_release.py
@@ -206,20 +251,11 @@ jobs:
           
           python3 download_signatures.py
 
-      - name: Commit latest.json to releases branch
+      - name: Upload latest.json to release
         shell: bash
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          git checkout -B releases
-          
-          # Check if latest.json exists and add it
-          if [ -f "latest.json" ]; then
-            git add latest.json
-            git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
-            git push origin releases --force
-          else
-            echo "latest.json not found"
-            exit 1
-          fi
+          # Upload latest.json as a release asset
+          gh release upload ${{ github.ref_name }} latest.json --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

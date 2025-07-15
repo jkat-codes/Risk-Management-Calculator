@@ -8,5 +8,15 @@ export default defineConfig({
     watch: {
       usePolling: true
     }
-  }
+  },
+  build: {
+    rollupOptions: {
+      external: [
+        '@tauri-apps/plugin-updater',
+        '@tauri-apps/plugin-process'
+      ]
+    }
+  },
+  clearScreen: false,
+  envPrefix: ["VITE_", "TAURI_"]
 })
