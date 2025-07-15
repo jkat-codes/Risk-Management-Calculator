@@ -9,7 +9,6 @@ import Updater from './services/updater/updater';
 import './App.css'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getDropdownMenuPlacement } from 'react-bootstrap/esm/DropdownMenu';
 
 function App() {
   const [balance, setBalance] = useState({
@@ -52,7 +51,7 @@ function App() {
 
     const AmountRisking = Number(data.loss) * 100 / balance.total;
 
-    if (AmountRisking + balance.riskPct > 10) {
+    if (AmountRisking + balance.liveRiskPct > 10) {
       console.log("Maximum risk exceeded!");
       toast.error("Maximum risk exceeded!", {
         position: 'top-right',
@@ -100,17 +99,22 @@ function App() {
     const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type } = closeData;
 
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
+    var Risk = risk;
 
     if (!tradeToClose) {
       console.log("Trade not found!");
       return;
     }
 
+    if (profit > 0) {
+      Risk = 0;
+    }
+
     setBalance(prevBalance => ({
       ...prevBalance,
       liveBalance: prevBalance.liveBalance + revenue,
-      liveRiskPct: Math.max(0, prevBalance.liveRiskPct - risk),
-      riskPct: Math.max(0, prevBalance.riskPct - risk)
+      liveRiskPct: Math.max(0, prevBalance.liveRiskPct - Risk),
+      riskPct: Math.max(0, prevBalance.riskPct - Risk)
     }))
 
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
@@ -127,6 +131,20 @@ function App() {
       }
     })
 
+
+  }
+
+  const setAccBalance = (riskPct) => {
+    if (balance.liveRiskPct === 0) {
+      return;
+    }
+
+    const updatedRisk = balance.liveRiskPct - riskPct > 0 ? balance.liveRiskPct - riskPct : 0;
+
+    setBalance(prev => ({
+      ...prev,
+      liveRiskPct: updatedRisk
+    }))
 
   }
 
@@ -154,6 +172,7 @@ function App() {
                 stopVal={component.stopVal}
                 contracts={component.contracts}
                 onConfirm={handleConfirmTrade}
+                setAccBalance={setAccBalance}
               ></TradeHistoryRow>
             ))}
           </div>

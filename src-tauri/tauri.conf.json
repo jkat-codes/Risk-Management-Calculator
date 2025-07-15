@@ -1,20 +1,10 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "risk-calculator",
   "version": "0.1.0",
-  "identifier": "com.jkatcodes.riskcalculator",
-  "plugins": {
-    "updater": {
-      "active": true,
-      "endpoints": "https://GITHUB_TOKEN_PLACEHOLDER@raw.githubusercontent.com/jkat-codes/Risk-Management-Calculator/releases/latest.json",
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OTdGNDZDMTQ1Q0Q0MkYKUldRdjFGd1ViUFNYOStLWC8xalVHTWpma1pWVlh5UXRQT1pKOFl3anpOZy9xcllBZXFBbjlZZkcK",
-      "windows": {
-        "installMode": "passive"
-      }
-    }
-  },
+  "identifier": "com.tauri.dev",
   "build": {
-    "frontendDist": "../src",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
@@ -23,9 +13,18 @@
     "windows": [
       {
         "title": "Risk Calculator",
-        "width": 1170,
+        "label": "main",
+        "minWidth": 1000,
+        "minHeight": 900,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": true,
+        "decorations": true,
+        "alwaysOnTop": false,
+        "useHttpsScheme": true,
+        "width": 1100,
         "height": 1000,
-        "resizable": false,
+        "resizable": true,
         "fullscreen": false
       }
     ],
@@ -43,5 +42,15 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://GITHUB_TOKEN_PLACEHOLDER@raw.githubusercontent.com/jkat-codes/Risk-Management-Calculator/releases/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OTdGNDZDMTQ1Q0Q0MkYKUldRdjFGd1ViUFNYOStLWC8xalVHTWpma1pWVlh5UXRQT1pKOFl3anpOZy9xcllBZXFBbjlZZkcK"
+    }
   }
 }

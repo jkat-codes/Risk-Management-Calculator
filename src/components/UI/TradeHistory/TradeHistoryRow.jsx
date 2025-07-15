@@ -4,7 +4,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
 
-function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm }) {
+function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance }) {
 
     if (contracts <= 0) {
         return;
@@ -17,6 +17,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
     const [showModal, setShowModal] = useState(false);
+    const [breakEven, setBreakEven] = useState(false);
 
     const Take1 = (premium * 1.25).toFixed(2);
     const Take2 = (premium * 1.5).toFixed(2);
@@ -59,6 +60,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                 setStopValue(premium);
                 setStopPercent(0);
 
+                // Reset the risk pct and risk balance to 0 in the Account Balance
+                if (!breakEven) {
+                    setAccBalance(risk);
+                    setBreakEven(true);
+                }
+
             }
 
             setCloseValue(takeString);
@@ -98,9 +105,9 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         const cost = contracts * 100 * premium;
         const profit = revenue - cost;
 
-        console.log("Cost: ", cost);
-        console.log("Revenue: ", revenue);
-        console.log("Profit: ", profit);
+        // console.log("Cost: ", cost);
+        // console.log("Revenue: ", revenue);
+        // console.log("Profit: ", profit);
 
         const closeData = {
             cost: cost,

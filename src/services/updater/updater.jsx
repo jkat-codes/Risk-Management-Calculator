@@ -8,6 +8,8 @@ const Updater = () => {
 
     const checkForUpdates = async () => {
         try {
+
+
             setisChecking(true);
             console.log("Checking for updates...");
 
