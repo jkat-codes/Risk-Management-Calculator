@@ -251,11 +251,21 @@ jobs:
           
           python3 download_signatures.py
 
-      - name: Upload latest.json to release
+      - name: Commit latest.json to releases branch
         shell: bash
         run: |
-          # Upload latest.json as a release asset
-          gh release upload ${{ github.ref_name }} latest.json --clobber
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git checkout -B releases
+          
+          # Check if latest.json exists and add it
+          if [ -f "latest.json" ]; then
+            git add latest.json
+            git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
+            git push origin releases --force
+          else
+            echo "latest.json not found"
+            exit 1
+          fi
 
