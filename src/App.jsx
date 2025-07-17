@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import supabase from './services/supabase-client';
 import Header from './components/UI/Header';
 import SummaryCard from './components/UI/AccountSummary/SummaryCard';
@@ -11,13 +11,49 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
+
+  const [updatedBalance, setUpdatedBalance] = useState(29000); 
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const {data, error} = await supabase 
+          .from('orders_placed')
+          .select('balance')
+          .order('placed_at', {ascending: false})
+          .limit(1)
+          .single(); 
+        if (error) {
+          console.log("Error fetching latest balance: ", error);
+        } else {
+          console.log(data.balance); 
+
+          setUpdatedBalance(data.balance);
+        }
+      } catch (err) {
+        console.log(err); 
+      }
+    }
+
+    fetchBalance(); 
+  }, [])
+
+
   const [balance, setBalance] = useState({
-    total: 29000,
-    liveBalance: 29000,
+    total: updatedBalance,
+    liveBalance: updatedBalance,
     riskPctMax: 10,
     riskPct: 0,
     liveRiskPct: 0
   })
+
+  useEffect(() => {
+    setBalance(prev => ({
+      ...prev, 
+      total: updatedBalance, 
+      liveBalance: updatedBalance
+    })); 
+  }, [updatedBalance])
 
   const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
 
@@ -110,12 +146,15 @@ function App() {
       Risk = 0;
     }
 
+    const newLiveBalance = balance.liveBalance + revenue; 
+
     setBalance(prevBalance => ({
       ...prevBalance,
       liveBalance: prevBalance.liveBalance + revenue,
       liveRiskPct: Math.max(0, prevBalance.liveRiskPct - Risk),
       riskPct: Math.max(0, prevBalance.riskPct - Risk)
     }))
+
 
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
 
@@ -132,7 +171,8 @@ function App() {
         stop_loss_val: stopVal, 
         stop_loss_pct: stopPct, 
         closing_premium: closing_premium, 
-        type: type
+        type: type, 
+        balance: newLiveBalance 
       })
 
     if (error) {
