@@ -16,8 +16,6 @@
         "label": "main",
         "minWidth": 1200,
         "minHeight": 1000,
-        "resizable": true,
-        "fullscreen": false,
         "visible": true,
         "decorations": true,
         "alwaysOnTop": false,
@@ -41,7 +39,8 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ], 
+    "createUpdaterArtifacts": true
   },
   "plugins": {
     "updater": {
@@ -50,7 +49,7 @@
         "https://GITHUB_TOKEN_PLACEHOLDER@raw.githubusercontent.com/jkat-codes/Risk-Management-Calculator/releases/latest.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OTdGNDZDMTQ1Q0Q0MkYKUldRdjFGd1ViUFNYOStLWC8xalVHTWpma1pWVlh5UXRQT1pKOFl3anpOZy9xcllBZXFBbjlZZkcK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI4OUYxNEM2RjIxNzNGMzAKUldRd1B4Znl4aFNmdUh3YXhYZHRlZENhSGlFYjBkRnZOMjhLNno5OFRsQ3A3MUNQeGR3UU9WVHkK"
     }
   }
 }
