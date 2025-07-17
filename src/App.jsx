@@ -157,9 +157,9 @@ function App() {
         <div className="MainContentContainer">
           <SummaryCard balance={balance}></SummaryCard>
           <Calculator balance={balance} onCardClick={handleCardClick}></Calculator>
-          <Header content="Current Trades"></Header>
-          <TradeHistoryLabels></TradeHistoryLabels>
           <div className="HistoryContainer">
+            <Header content="Current Trades"></Header>
+            <TradeHistoryLabels></TradeHistoryLabels>
             {createdTradeComponents.map(component => (
               <TradeHistoryRow
                 key={component.id}
@@ -182,4 +182,4 @@ function App() {
   )
 }
 
-export default App
+export default App; 
