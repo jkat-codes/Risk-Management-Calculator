@@ -1,0 +1,11 @@
+{
+  "version": "1.0.14",
+  "notes": "Latest release of Risk Calculator",
+  "pub_date": "2025-07-15T20:41:55Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "ZFc1MGNuVnpkR1ZrSUdOdmJXMWxiblE2SUhOcFoyNWhkSFZ5WlNCbWNtOXRJSFJoZFhKcElITmxZM0psZENCclpYa0tVbFZSZDFCNFpubDRhRk5tZFVWTFNISjRWVEppVVdOTGRFVlViMU5DYlZCS1VtVkRLemhGYms4MlpqUmhSMWh6UVVoWk9UWm9VMHBMU3pVd1psUjZWR05DV25WQ1NtOXlORWg1WVVabGVHaGFPR2hHU1RWME5XbFVkbXd6VUV4V1dGRm5QUXAwY25WemRHVmtJR052YlcxbGJuUTZJSFJwYldWemRHRnRjRG94TnpVeU56a3dOamt4Q1dacGJHVTZjbWx6YXkxallXeGpkV3hoZEc5eVh6RXVNQzR4TkY5NE5qUXRjMlYwZFhBdVpYaGxDbkY1YUhaR1UwNW1OSEJOV21GRlltaG9lbmMzZFZndmRWbE9NelZhWVhaMWVDczJkVGRXYVV4aVdXUkVNMUIwY21sQ1oyVlpSQ3RYUlUxRFZEZEdURzkyYTNoWmNIZHFTbVU0YTJ0MkwwczRXbE5GUjBKM1BUMEs=",
+      "url": "https://github.com/jkat-codes/Risk-Management-Calculator/releases/download/v1.0.14/risk-calculator_1.0.14_x64-setup.exe"
+    }
+  }
+}
