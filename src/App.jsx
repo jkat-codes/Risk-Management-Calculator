@@ -95,8 +95,8 @@ function App() {
     setCreatedTradeComponents(prev => [newComponent, ...prev]);
   }
 
-  const handleConfirmTrade = (tradeId, closeData) => {
-    const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type } = closeData;
+  const handleConfirmTrade = async(tradeId, closeData) => {
+    const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type, PLVal, PLPct, closing_premium} = closeData;
 
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     var Risk = risk;
@@ -119,17 +119,44 @@ function App() {
 
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
 
-    // Add to supabase here
+    const cryptoID = crypto.randomUUID(); 
 
-    // Notify successful close
-    toast.success('Position closed successfully!', {
-      position: 'top-right',
-      style: {
-        position: "absolute",
-        top: "100px",
-        right: "20px"
-      }
-    })
+    // Add to supabase here
+    const {error} = await supabase 
+      .from("orders_placed")
+      .insert({
+        id: cryptoID, 
+        placed_at: time, 
+        premium_paid: premium, 
+        risk_per_trade: risk, 
+        stop_loss_val: stopVal, 
+        stop_loss_pct: stopPct, 
+        closing_premium: closing_premium, 
+        type: type
+      })
+
+    if (error) {
+      console.log("Error adding trade to database: ", error); 
+      toast.warn("Error adding trade to database. Closing...", {
+        position: 'top-right',
+        style: {
+          position: "absolute",
+          top: "100px",
+          right: "20px"
+        }
+      }); 
+    } else {
+      // Notify successful close
+      toast.success('Position closed successfully!', {
+        position: 'top-right',
+        style: {
+          position: "absolute",
+          top: "100px",
+          right: "20px"
+        }
+      })
+    }
+
 
 
   }

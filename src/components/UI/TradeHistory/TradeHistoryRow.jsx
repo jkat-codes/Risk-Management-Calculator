@@ -106,17 +106,20 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         const profit = revenue - cost;
 
         const closeData = {
-            cost: cost,
-            revenue: revenue,
-            profit: profit,
-            risk: risk,
-            stopPct: ProfitLossPct,
-            stopVal: value,
-            contracts: contracts,
-            time: time,
-            ticker: ticker,
-            premium: premium,
-            type: TradeType
+            cost: cost, 
+            revenue: revenue, 
+            profit: profit, 
+            risk: risk, 
+            stopPct: StopPercent, 
+            stopVal: StopValue, 
+            contracts: contracts, 
+            time: time, 
+            ticker: ticker, 
+            premium: premium, 
+            type: TradeType, 
+            PLVal: value, 
+            PLPct: ProfitLossPct, 
+            closing_premium: Close
         }
 
         onConfirm(id, closeData)
