@@ -15,10 +15,6 @@
     cursor: pointer;
 }
 
-.StatCardContainer:hover {
-    scale: 1.05;
-}
-
 
 .StatisticHeader {
     display: flex;
