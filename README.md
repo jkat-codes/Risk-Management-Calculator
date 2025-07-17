@@ -16,6 +16,18 @@ A desktop application for options traders built with React and Tauri. Designed t
 - **Take Profit Targets**: Automatic calculation of T1 (1.25R), T2( 1.5R), T3 (1.75R), and TG4 (2R)
 - **Contract Quantity Optimization**: Determines the optimal number of contracts based on risk and premium
 
+## Trade Management
+
+- **P&L Calculation**: Automatic profit/loss calculations for each position
+- **Break-even Management**: Automatic stop-loss adjustment to break even when profitable
+- **Position Closing**: Streamlined closure with confirmation modal
+
+## Account Overview
+
+- **Balance Tracking**: Real-time account balance updates based on positions
+- **Risk Exposure**: Visual representation of current risk level
+- **Trade History**: Comprehensive log of all current trading activity (historical metrics coming soon)
+
 ## Project Structure
 
 - React frontend
