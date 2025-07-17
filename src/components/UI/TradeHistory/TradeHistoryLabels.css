@@ -11,18 +11,19 @@
     background-color: #838fdb;
     position: relative;
     display: flex;
-    flex-shrink: 0;
+    flex: 1 1;
+    width: 100%; 
 }
 
 .ColumnLabel {
     min-width: 77.14px;
-    max-width: 77.14px;
     max-height: 30px;
     min-height: 30px;
     font-size: 12px;
     border-right: 1px solid black;
     border-bottom: 1px solid black;
     display: flex;
+    flex: 1 1; 
     justify-content: center;
     align-items: center;
     overflow: hidden;

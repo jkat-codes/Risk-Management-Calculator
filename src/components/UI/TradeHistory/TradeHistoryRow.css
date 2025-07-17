@@ -11,7 +11,7 @@
     max-height: 30px;
     position: relative;
     display: flex;
-    flex-shrink: 0;
+    flex: 1 1;
 }
 
 .HistoryRowContainer:nth-child(odd) {
@@ -25,7 +25,6 @@
 .ColumnLabel {
     position: relative;
     min-width: 77.14px;
-    max-width: 77.14px;
     max-height: 30px;
     min-height: 30px;
     color: black;
