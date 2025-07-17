@@ -8,8 +8,6 @@ const Updater = () => {
 
     const checkForUpdates = async () => {
         try {
-
-
             setisChecking(true);
             console.log("Checking for updates...");
 
@@ -57,13 +55,12 @@ const Updater = () => {
             console.log("Update check failed: ", error);
             console.log("Error message: ", error.message); 
             console.log("Error stack: ", error.stack); 
-            toast.error(`Update check failed: ${error}`, {
+            toast.warn(`Update check failed: ${error}`, {
                 position: "top-right",
                 style: {
                     position: "absolute",
                     top: "100px",
-                    right: "20px",
-                    color: "#ff6b6b"
+                    right: "20px"
                 }
             })
         } finally {
