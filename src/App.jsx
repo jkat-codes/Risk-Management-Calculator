@@ -172,7 +172,9 @@ function App() {
         stop_loss_pct: stopPct, 
         closing_premium: closing_premium, 
         type: type, 
-        balance: newLiveBalance 
+        balance: newLiveBalance, 
+        contracts: contracts, 
+        ticker: ticker
       })
 
     if (error) {
