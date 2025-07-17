@@ -1,7 +1,7 @@
 import { check } from "@tauri-apps/plugin-updater";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { toast } from "react-toastify";
-import React, { useState, useEfect, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Updater = () => {
     const [isChecking, setisChecking] = useState(false);
@@ -14,6 +14,8 @@ const Updater = () => {
             console.log("Checking for updates...");
 
             const update = await check();
+
+            console.log(update); 
 
             if (update) {
                 console.log(`Found update ${update.version} from ${update.date} with notes ${update.body}`);
@@ -53,6 +55,8 @@ const Updater = () => {
             }
         } catch (error) {
             console.log("Update check failed: ", error);
+            console.log("Error message: ", error.message); 
+            console.log("Error stack: ", error.stack); 
             toast.error(`Update check failed: ${error}`, {
                 position: "top-right",
                 style: {
