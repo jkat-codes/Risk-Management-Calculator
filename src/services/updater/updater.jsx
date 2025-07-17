@@ -79,6 +79,7 @@ const Updater = () => {
             }
         } catch (error) {
             console.log("Update check failed: ", error);
+            console.log('Error details:', JSON.stringify(error, null, 2));
             console.log("Error message: ", error.message); 
             console.log("Error stack: ", error.stack); 
             toast.warn(`Update check failed: ${error}`, {
