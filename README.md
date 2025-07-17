@@ -4,17 +4,17 @@ A desktop application for options traders built with React and Tauri. Designed t
 
 ## Features
 
-- Account Risk Control: set a maximum risk percentage (default 10%)
-- Position Sizing: Automatic calculation of contract quantities based on risk tolerance
-- Stop Loss Calculator: Pre-calculated stop levels at 10%, 15%, 20% and 25% (will be modifiable soon)
-- Risk Tracking: Monitoring of current account risk
+- **Account Risk Control**: set a maximum risk percentage (default 10%)
+- **Position Sizing**: Automatic calculation of contract quantities based on risk tolerance
+- **Stop Loss Calculator**: Pre-calculated stop levels at 10%, 15%, 20% and 25% (will be modifiable soon)
+- **Risk Tracking**: Monitoring of current account risk
 
 ## Trading Calculator
 
-- Premium-based Calculations: Input option premium to calculate position metrics
-- Multiple Risk Levels: Choose from 1%, 2%, 2.5%, 3%, 4%, or 5% account risk per trade
-- Take Profit Targets: Automatic calculation of T1 (1.25R), T2( 1.5R), T3 (1.75R), and TG4 (2R)
-- Contract Quantity Optimization: Determines the optimal number of contracts based on risk and premium
+- **Premium-based Calculations**: Input option premium to calculate position metrics
+- **Multiple Risk Levels**: Choose from 1%, 2%, 2.5%, 3%, 4%, or 5% account risk per trade
+- **Take Profit Targets**: Automatic calculation of T1 (1.25R), T2( 1.5R), T3 (1.75R), and TG4 (2R)
+- **Contract Quantity Optimization**: Determines the optimal number of contracts based on risk and premium
 
 ## Project Structure
 
