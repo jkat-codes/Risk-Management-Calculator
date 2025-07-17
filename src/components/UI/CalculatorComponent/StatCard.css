@@ -8,10 +8,10 @@
 .StatCardContainer {
     display: flex;
     flex-direction: column;
+    width: 100%; 
+    flex: 1 1 calc((100% - 20px) / 3); 
     min-width: 263.3px;
-    max-width: 263.3px;
     min-height: 193px;
-    max-height: 193px;
     cursor: pointer;
 }
 
