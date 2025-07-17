@@ -18,7 +18,7 @@ export function StatRowInput({ stats, header, value, onChange }) {
     return (
         <div className="StatContainer">
             <div style={{ backgroundColor: stats.headerBackground }} className="StatHeader">{header}</div>
-            <input type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none' }} className="StatContent" />
+            <input type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none'}} className="StatContent" />
         </div>
     )
 }
