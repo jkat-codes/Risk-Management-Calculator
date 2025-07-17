@@ -14,13 +14,13 @@
       {
         "title": "Risk Calculator",
         "label": "main",
-        "minWidth": 1200,
+        "minWidth": 1220,
         "minHeight": 1000,
         "visible": true,
         "decorations": true,
-        "alwaysOnTop": false,
+        "alwaysOnTop": true,
         "useHttpsScheme": true,
-        "width": 1200,
+        "width": 1220,
         "height": 1000,
         "resizable": true,
         "fullscreen": false
@@ -46,7 +46,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://GITHUB_TOKEN_PLACEHOLDER@raw.githubusercontent.com/jkat-codes/Risk-Management-Calculator/releases/latest.json"
+        "https://GTIHUB_TOKEN_PLACEHOLDER@raw.githubusercontent.com/jkat-codes/Risk-Management-Calculator/releases/latest.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI4OUYxNEM2RjIxNzNGMzAKUldRd1B4Znl4aFNmdUh3YXhYZHRlZENhSGlFYjBkRnZOMjhLNno5OFRsQ3A3MUNQeGR3UU9WVHkK"
