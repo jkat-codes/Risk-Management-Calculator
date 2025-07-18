@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
-  const [updatedBalance, setUpdatedBalance] = useState(29000); 
+  const [updatedBalance, setUpdatedBalance] = useState(0); 
 
   useEffect(() => {
     const fetchBalance = async () => {
