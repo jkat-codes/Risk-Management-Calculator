@@ -32,3 +32,6 @@ dist-ssr
 
 # Build scripts
 build-scripts/
+
+# Notes
+*.txt
