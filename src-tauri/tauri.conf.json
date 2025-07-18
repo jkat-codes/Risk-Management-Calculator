@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "risk-calculator",
-  "version": "1.0.15", 
+  "version": "1.0.16", 
   "identifier": "jkatcodes.calculator.com",
   "build": {
     "frontendDist": "../dist",
@@ -49,7 +49,7 @@
         "https://github.com/jkat-codes/Risk-Management-Calculator/releases/latest/download/latest.json"
       ],
       "dialog": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI4OUYxNEM2RjIxNzNGMzAKUldRd1B4Znl4aFNmdUh3YXhYZHRlZENhSGlFYjBkRnZOMjhLNno5OFRsQ3A3MUNQeGR3UU9WVHkK"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY3OTdGNDZDMTQ1Q0Q0MkYKUldRdjFGd1ViUFNYOStLWC8xalVHTWpma1pWVlh5UXRQT1pKOFl3anpOZy9xcllBZXFBbjlZZkcK"
     }
   }
 }
