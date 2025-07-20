@@ -200,13 +200,21 @@ function App() {
     }
   }
 
-  const handleDeleteTrade = (tradeId) => {
+  const handleDeleteTrade = (tradeId, premium, contracts, risk) => {
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     if (!tradeToClose) {
       console.log("Cannot delete a trade that doesn't exist!"); 
       return; 
     }
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
+
+    // Need to reset balance here
+    setBalance(prevBalance => ({
+      ...prevBalance, 
+      liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
+      liveRiskPct: prevBalance.liveRiskPct - risk, 
+      riskPct: prevBalance.riskPct - risk
+    }))
   }
 
   const setAccBalance = (riskPct) => {
