@@ -198,9 +198,15 @@ function App() {
         }
       })
     }
+  }
 
-
-
+  const handleDeleteTrade = (tradeId) => {
+    const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
+    if (!tradeToClose) {
+      console.log("Cannot delete a trade that doesn't exist!"); 
+      return; 
+    }
+    setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
   }
 
   const setAccBalance = (riskPct) => {
@@ -242,6 +248,7 @@ function App() {
                 contracts={component.contracts}
                 onConfirm={handleConfirmTrade}
                 setAccBalance={setAccBalance}
+                onDelete={handleDeleteTrade}
               ></TradeHistoryRow>
             ))}
           </div>

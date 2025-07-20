@@ -4,7 +4,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
 
-function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance }) {
+function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete}) {
 
     if (contracts <= 0) {
         return;
@@ -127,6 +127,10 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         setShowModal(false);
     }
 
+    const handleDeleteTrade = () => {
+        onDelete(id); 
+    } 
+
     return (
         <div className="HistoryRowContainer">
             <span className="ColumnLabel">{ticker}</span>
@@ -185,6 +189,9 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             <span className="ColumnLabel clickable">
                 <button className="ConfirmBtn" onClick={handleOpenModal}>Close Pos</button>
                 {showModal && <ConfirmationModal onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+            </span>
+            <span className="ColumnLabel clickable">
+                <button className="DeleteBtn" onClick={handleDeleteTrade}>Delete Pos</button>
             </span>
         </div>
     )
