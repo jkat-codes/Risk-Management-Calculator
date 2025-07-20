@@ -63,3 +63,36 @@ input[type=text] {
 .clickable {
     cursor: pointer;
 }
+
+@media screen and (min-width: 1220px) {
+    .StatContent {
+        font-size: 12px;
+    }
+}
+
+
+@media screen and (min-width: 1500px) {
+    .StatContent {
+        font-size: 16px;
+    }
+}
+
+@media screen and (min-width: 1700px) {
+    .StatContent {
+        font-size: 20px;
+    }
+
+    .StatHeader {
+        font-size: 18px;
+    }
+}
+
+@media screen and (min-width: 1900px) {
+    .StatContent {
+        font-size: 24px;
+    }
+
+    .StatHeader {
+        font-size: 20px;
+    }
+}

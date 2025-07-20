@@ -1,0 +1,487 @@
+name: 'publish'
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'  
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'npm'
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: install Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: install frontend dependencies
+        run: npm install
+
+      - name: Update tauri config with token
+        shell: bash
+        run: |
+          cat > replace_token.py << 'EOF'
+          import json
+          import os
+
+          # Read the config file
+          with open('src-tauri/tauri.conf.json', 'r') as f:
+              config = f.read()
+
+          print("Before replacement:")
+          print("GITHUB_TOKEN_PLACEHOLDER found:", "GITHUB_TOKEN_PLACEHOLDER" in config)
+          
+          # Replace the placeholder with the actual token
+          token = os.environ.get('PRIVATE_REPO_TOKEN', '')
+          if token:
+              config = config.replace('GITHUB_TOKEN_PLACEHOLDER', token)
+              print("Token replacement completed")
+              print("After replacement - placeholder still found:", "GITHUB_TOKEN_PLACEHOLDER" in config)
+          else:
+              print("ERROR: PRIVATE_REPO_TOKEN not found in environment")
+
+          # Write back the config
+          with open('src-tauri/tauri.conf.json', 'w') as f:
+              f.write(config)
+              
+          # Validate JSON structure
+          try:
+              with open('src-tauri/tauri.conf.json', 'r') as f:
+                  json_data = json.load(f)
+              print("JSON validation: SUCCESS")
+              print("Endpoints type:", type(json_data.get('plugins', {}).get('updater', {}).get('endpoints', 'Not found')))
+          except Exception as e:
+              print("JSON validation: FAILED -", str(e))
+          EOF
+          
+          echo "Config before replacement:"
+          grep -n "endpoints" src-tauri/tauri.conf.json || echo "endpoints not found"
+          
+          python3 replace_token.py
+          
+          echo "Config after replacement:"
+          grep -n "endpoints" src-tauri/tauri.conf.json || echo "endpoints not found"
+        env:
+          PRIVATE_REPO_TOKEN: ${{ secrets.PRIVATE_REPO_TOKEN }}
+
+      - name: Debug environment before build
+        shell: bash
+        run: |
+          echo "=== Pre-build environment check ==="
+          echo "TAURI_SIGNING_PRIVATE_KEY set: $([ -n "$TAURI_SIGNING_PRIVATE_KEY" ] && echo "YES (${#TAURI_SIGNING_PRIVATE_KEY} chars)" || echo "NO")"
+          echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD set: $([ -n "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" ] && echo "YES" || echo "NO (this is okay if no password)")"
+          
+          echo "=== Tauri config verification ==="
+          if [ -f "src-tauri/tauri.conf.json" ]; then
+            echo "tauri.conf.json exists"
+            echo "Updater section:"
+            grep -A 10 -B 2 '"updater"' src-tauri/tauri.conf.json || echo "No updater section found in config"
+            echo "Bundle section:"
+            grep -A 5 -B 2 '"bundle"' src-tauri/tauri.conf.json || echo "No bundle section found"
+          else
+            echo "ERROR: tauri.conf.json not found!"
+            ls -la src-tauri/
+          fi
+          
+          echo "=== Tauri CLI version ==="
+          tauri --version || echo "Tauri CLI not found"
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      - name: build the app
+        uses: tauri-apps/tauri-action@v0.5.16
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Risk Calculator v__VERSION__'
+          releaseBody: 'See the assets to download this version.'
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+          includeUpdaterJson: false
+
+      - name: Post-build verification
+        shell: bash
+        run: |
+          echo "=== Post-build file check ==="
+          echo "Looking for any files that might have been created..."
+          
+          # Check all possible locations for bundle files
+          echo "=== Checking src-tauri/target structure ==="
+          find ./src-tauri/target -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.sig" -type f 2>/dev/null | head -20 || echo "No bundle files in src-tauri/target"
+          
+          echo "=== Checking for any bundle directories ==="
+          find . -name "bundle" -type d 2>/dev/null || echo "No bundle directories found"
+          
+          echo "=== Checking current directory for any built files ==="
+          find . -maxdepth 3 -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.sig" -type f 2>/dev/null || echo "No bundle files in current directory tree"
+          
+          echo "=== Target directory contents ==="
+          ls -la ./src-tauri/target/ 2>/dev/null || echo "Target directory doesn't exist"
+          
+          # Check if there are any release directories
+          if [ -d "./src-tauri/target" ]; then
+            echo "=== Release directories ==="
+            find ./src-tauri/target -name "*release*" -type d
+            
+            # Check each release directory
+            for dir in $(find ./src-tauri/target -name "*release*" -type d 2>/dev/null); do
+              echo "Contents of $dir:"
+              ls -la "$dir" 2>/dev/null | head -10
+            done
+          fi
+
+      - name: Wait for release to be fully created
+        shell: bash
+        run: |
+          echo "Waiting 10 seconds for release to be fully processed..."
+          sleep 10
+
+      - name: Debug build artifacts
+        shell: bash
+        run: |
+          echo "=== Checking for signature files ==="
+          find . -name "*.sig" -type f -exec ls -la {} \; || echo "No .sig files found"
+          
+          echo "=== All files in src-tauri/target ==="
+          find ./src-tauri/target -type f -name "*" | grep -E "\.(dmg|exe|msi|deb|AppImage|sig)$" || echo "No bundle/signature files found"
+          
+          echo "=== Complete target directory structure ==="
+          find ./src-tauri/target -name "*" -type f | grep -v ".fingerprint" | grep -v ".d" | head -30
+          
+          echo "=== Environment variables ==="
+          echo "TAURI_SIGNING_PRIVATE_KEY set: $([ -n "$TAURI_SIGNING_PRIVATE_KEY" ] && echo "YES (${#TAURI_SIGNING_PRIVATE_KEY} chars)" || echo "NO")"
+          echo "GITHUB_TOKEN set: $([ -n "$GITHUB_TOKEN" ] && echo "YES" || echo "NO")"
+          
+          echo "=== Tauri config check ==="
+          if [ -f "src-tauri/tauri.conf.json" ]; then
+            echo "tauri.conf.json exists"
+            grep -A 10 -B 2 '"updater"' src-tauri/tauri.conf.json || echo "No updater section found"
+          else
+            echo "tauri.conf.json not found!"
+          fi
+          
+          echo "=== Check if tauri-action actually ran ==="
+          echo "Current directory contents:"
+          ls -la
+          
+          echo "=== Look for bundle directory specifically ==="
+          find . -name "bundle" -type d -exec ls -la {} \;
+
+      - name: Upload missing signature files
+        shell: bash
+        run: |
+          # Install jq based on platform
+          if [[ "${{ matrix.platform }}" == "ubuntu-"* ]]; then
+            sudo apt-get update && sudo apt-get install -y jq
+          elif [[ "${{ matrix.platform }}" == "macos-"* ]]; then
+            brew install jq
+          elif [[ "${{ matrix.platform }}" == "windows-"* ]]; then
+            # Use GitHub's pre-installed jq on Windows
+            echo "Using pre-installed jq on Windows"
+          fi
+          
+          echo "=== Checking what got uploaded to release ==="
+          RELEASE_DATA=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}")
+          
+          echo "Release assets:"
+          echo "$RELEASE_DATA" | jq -r '.assets[].name' || echo "Failed to parse release data"
+          
+          echo "=== Looking for signature files that might need manual upload ==="
+          for sig_file in $(find ./src-tauri/target -name "*.sig" -type f 2>/dev/null); do
+            echo "Found signature file: $sig_file"
+            filename=$(basename "$sig_file")
+            
+            # Check if this signature file was already uploaded
+            asset_exists=$(echo "$RELEASE_DATA" | jq -r --arg name "$filename" '.assets[] | select(.name == $name) | .name' 2>/dev/null)
+            
+            if [ -z "$asset_exists" ]; then
+              echo "Signature file $filename was not uploaded, uploading manually..."
+              
+              # Get upload URL
+              upload_url=$(echo "$RELEASE_DATA" | jq -r '.upload_url' | sed 's/{?name,label}//')
+              
+              # Upload the signature file
+              response=$(curl -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$sig_file" \
+                "${upload_url}?name=${filename}" \
+                -w "HTTP_CODE:%{http_code}")
+              
+              echo "Upload response: $response"
+              echo "Uploaded $filename"
+            else
+              echo "Signature file $filename already exists in release"
+            fi
+          done
+
+  generate-updater-json:
+    needs: publish-tauri
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get release data (with retry)
+        id: release
+        run: |
+          # Wait a bit longer for all builds to complete
+          echo "Waiting for all builds to complete..."
+          sleep 60
+          
+          # Retry getting release data a few times
+          for i in {1..5}; do
+            echo "Attempt $i to get release data..."
+            RELEASE_DATA=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ github.ref_name }}")
+            
+            # Check if we got valid data
+            if echo "$RELEASE_DATA" | grep -q '"assets"'; then
+              echo "Successfully retrieved release data"
+              echo "release_data<<EOF" >> $GITHUB_OUTPUT
+              echo "$RELEASE_DATA" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+              break
+            else
+              echo "Invalid release data received, retrying in 30 seconds..."
+              sleep 30
+            fi
+            
+            if [ $i -eq 5 ]; then
+              echo "Failed to get release data after 5 attempts"
+              echo "Response: $RELEASE_DATA"
+              exit 1
+            fi
+          done
+
+      - name: Generate latest.json
+        shell: bash
+        run: |
+          # Generate current timestamp
+          CURRENT_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          cat > latest.json << EOF
+          {
+            "version": "${{ github.ref_name }}",
+            "notes": "Latest release of Risk Calculator",
+            "pub_date": "${CURRENT_DATE}",
+            "platforms": {}
+          }
+          EOF
+
+          cat > parse_release.py << 'EOF'
+          import json
+          import os
+          import re
+
+          try:
+              # Write release data to file for debugging
+              release_json = '''${{ steps.release.outputs.release_data }}'''
+              with open('release_data.json', 'w') as f:
+                  f.write(release_json)
+
+              # Parse release data
+              with open('release_data.json', 'r') as f:
+                  release = json.load(f)
+
+              print(f"Release found: {release.get('name', 'Unknown')}")
+              print(f"Total assets: {len(release.get('assets', []))}")
+              
+              # List all assets
+              print("All assets in release:")
+              for asset in release.get('assets', []):
+                  print(f"  - {asset['name']} ({asset['size']} bytes)")
+
+              with open('latest.json', 'r') as f:
+                  update_data = json.load(f)
+
+              platforms = {}
+              
+              for asset in release['assets']:
+                  name = asset['name']
+                  download_url = asset['browser_download_url']
+                  
+                  # Skip signature files in this pass
+                  if name.endswith('.sig'):
+                      continue
+                  
+                  # Determine platform from filename with more patterns
+                  platform_key = None
+                  name_lower = name.lower()
+                  
+                  if any(x in name_lower for x in ['x64-setup.exe', 'x64_en-us.msi', '_x64_en-us.msi', '_x64.exe', 'x64.exe']):
+                      platform_key = 'windows-x86_64'
+                  elif any(x in name_lower for x in ['aarch64.dmg', '_aarch64.dmg', 'arm64.dmg']):
+                      platform_key = 'darwin-aarch64'
+                  elif any(x in name_lower for x in ['x64.dmg', '_x64.dmg', 'x86_64.dmg']):
+                      platform_key = 'darwin-x86_64'
+                  elif any(x in name_lower for x in ['amd64.appimage', 'amd64.deb', '_amd64.appimage', 'x86_64.appimage']):
+                      platform_key = 'linux-x86_64'
+                  
+                  if platform_key:
+                      print(f"✓ Mapped {name} to platform: {platform_key}")
+                      
+                      # Check if signature file exists
+                      sig_name = name + '.sig'
+                      sig_asset = next((a for a in release['assets'] if a['name'] == sig_name), None)
+                      
+                      if sig_asset:
+                          print(f"  ✓ Found signature: {sig_name}")
+                          platforms[platform_key] = {
+                              "signature": "SIGNATURE_PLACEHOLDER",
+                              "url": download_url
+                          }
+                      else:
+                          print(f"  ⚠️  WARNING: No signature found for: {name}")
+                          print(f"     Expected: {sig_name}")
+                          # Add without signature for now
+                          platforms[platform_key] = {
+                              "url": download_url
+                          }
+                  else:
+                      print(f"❌ Could not determine platform for: {name}")
+
+              if not platforms:
+                  print("❌ ERROR: No platforms were mapped! Check your asset names.")
+                  print("Asset names found:")
+                  for asset in release['assets']:
+                      print(f"  - {asset['name']}")
+              else:
+                  print(f"✅ Final platforms: {list(platforms.keys())}")
+
+              update_data['platforms'] = platforms
+
+              with open('latest.json', 'w') as f:
+                  json.dump(update_data, f, indent=2)
+              
+              print("✅ Generated latest.json successfully")
+              
+              # Show the final JSON
+              print("Final latest.json content:")
+              with open('latest.json', 'r') as f:
+                  print(f.read())
+                  
+          except Exception as e:
+              print(f"❌ Error in parse_release.py: {e}")
+              import traceback
+              traceback.print_exc()
+              exit(1)
+          EOF
+          
+          python3 parse_release.py
+
+      - name: Download signatures and update latest.json (if signatures exist)
+        shell: bash
+        run: |
+          cat > download_signatures.py << 'EOF'
+          import json
+          import requests
+
+          with open('latest.json', 'r') as f:
+              update_data = json.load(f)
+
+          release_data = '''${{ steps.release.outputs.release_data }}'''
+          release = json.loads(release_data)
+
+          for platform, info in update_data['platforms'].items():
+              # Only try to download signature if the platform entry has a signature placeholder
+              if 'signature' in info and info['signature'] == 'SIGNATURE_PLACEHOLDER':
+                  url = info['url']
+                  filename = url.split('/')[-1]
+                  sig_filename = filename + '.sig'
+                  
+                  sig_asset = next((a for a in release['assets'] if a['name'] == sig_filename), None)
+                  if sig_asset:
+                      try:
+                          headers = {'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}'}
+                          response = requests.get(sig_asset['browser_download_url'], headers=headers)
+                          if response.status_code == 200:
+                              signature = response.text.strip()
+                              update_data['platforms'][platform]['signature'] = signature
+                              print(f"Downloaded signature for {platform}")
+                          else:
+                              print(f"Failed to download signature for {platform}: {response.status_code}")
+                              # Remove signature field if download failed
+                              del update_data['platforms'][platform]['signature']
+                      except Exception as e:
+                          print(f"Error downloading signature for {platform}: {e}")
+                          # Remove signature field if download failed
+                          del update_data['platforms'][platform]['signature']
+                  else:
+                      print(f"Signature asset not found for {platform}")
+                      # Remove signature field if asset not found
+                      del update_data['platforms'][platform]['signature']
+
+          with open('latest.json', 'w') as f:
+              json.dump(update_data, f, indent=2)
+          
+          print("Updated signatures in latest.json")
+          EOF
+          
+          python3 download_signatures.py
+
+      - name: Commit latest.json to releases branch
+        shell: bash
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git checkout -B releases
+          
+          # Check if latest.json exists and add it
+          if [ -f "latest.json" ]; then
+            git add latest.json
+            git commit -m "Update latest.json for ${{ github.ref_name }}" || exit 0
+            git push origin releases --force
+          else
+            echo "latest.json not found"
+            exit 1
+          fi
+

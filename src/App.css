@@ -26,11 +26,10 @@
 }
 
 .HistoryContainer {
-  width: 100%; 
-  min-width: 1220px; 
   height: 203px;
-  max-height: 203px;
   min-height: 203px;
   overflow-y: auto;
   overflow-x: hidden;
+  flex-basis: 100%;
+  flex-shrink: 0;
 }

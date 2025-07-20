@@ -13,8 +13,8 @@
     min-width: 263.3px;
     min-height: 193px;
     cursor: pointer;
+    position: relative; 
 }
-
 
 .StatisticHeader {
     display: flex;
@@ -29,7 +29,7 @@
 .RiskValue,
 .StopValue {
     color: white;
-    font-size: 12px;
+    font-size: 24px;
 }
 
 .StatCardContainer:nth-child(2) {
@@ -57,10 +57,51 @@
 }
 
 .StatisticTitle {
-    font-size: 10px;
+    font-size: 24px;
 }
 
 .StatisticValue {
-    font-size: 12px;
+    font-size: 24px;
     font-weight: bold;
+}
+
+@media screen and (min-width: 1220px) {
+    .StatisticValue, .StatisticTitle {
+        font-size: 16px;
+    }
+
+    .RiskValue, .StopValue {
+        font-size: 16px;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    .StatisticValue, .StatisticTitle {
+        font-size: 18px;
+    }
+
+    .RiskValue, .StopValue {
+        font-size: 18px;
+    }
+}
+
+
+@media screen and (min-width: 1700px) {
+    .StatisticValue, .StatisticTitle {
+        font-size: 20px;
+    }
+
+    .RiskValue, .StopValue {
+        font-size: 20px;
+    }
+}
+
+@media screen and (min-width: 1900px) {
+    .StatisticValue, .StatisticTitle {
+        font-size: 22px;
+    }
+
+    .RiskValue, .StopValue {
+        font-size: 22px;
+    }
 }
