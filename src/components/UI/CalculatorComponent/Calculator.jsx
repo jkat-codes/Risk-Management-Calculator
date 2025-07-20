@@ -101,12 +101,12 @@ function Calculator({ balance, onCardClick }) {
     }
 
     const handleCardClick = (data) => {
+
+
         const missingFields = [];
         if (data.stopVal === "0.00") missingFields.push("Premium");
         if (data.stopPct === '') missingFields.push("Stop");
         if (data.ticker === '') missingFields.push("Ticker");
-
-        // Check here for maximum account risk
 
         if (missingFields.length > 0) {
             toast.error(`Missing: ${missingFields.join(', ')}`, {
@@ -119,6 +119,18 @@ function Calculator({ balance, onCardClick }) {
                 }
             })
         } else {
+            // Clear the premium and stop
+            setPremium(''); 
+            setTicker(''); 
+            // Remove the stop level
+            setStopLevel(''); 
+            const highlightedElements = document.querySelectorAll(".highlighted");
+            if (highlightedElements.length > 0) {
+                highlightedElements.forEach((element) => {
+                    element.classList.remove("highlighted");
+                })
+            }
+
             onCardClick(data);
         }
 
