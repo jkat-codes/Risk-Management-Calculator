@@ -14,11 +14,11 @@ export function StatRow({ stats, header, content, onClick }) {
     )
 }
 
-export function StatRowInput({ stats, header, value, onChange }) {
+export function StatRowInput({ identifier, stats, header, value, onChange }) {
     return (
         <div className="StatContainer">
             <div style={{ backgroundColor: stats.headerBackground }} className="StatHeader">{header}</div>
-            <input type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none'}} className="StatContent" />
+            <input id={identifier} type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none'}} className="StatContent" />
         </div>
     )
 }
@@ -101,8 +101,6 @@ function Calculator({ balance, onCardClick }) {
     }
 
     const handleCardClick = (data) => {
-
-
         const missingFields = [];
         if (data.stopVal === "0.00") missingFields.push("Premium");
         if (data.stopPct === '') missingFields.push("Stop");
@@ -130,7 +128,10 @@ function Calculator({ balance, onCardClick }) {
                     element.classList.remove("highlighted");
                 })
             }
-
+            // Place cursor in Premium input
+            const PremiumInputField = document.getElementById("PremiumInput"); 
+            PremiumInputField.focus(); 
+            
             onCardClick(data);
         }
 
@@ -192,7 +193,7 @@ function Calculator({ balance, onCardClick }) {
                 <StatRow stats={statsLoss} header={"15% Stop"} content={Stop15} onClick={stopChange}></StatRow>
                 <StatRow stats={statsLoss} header={"20% Stop"} content={Stop20} onClick={stopChange}></StatRow>
                 <StatRow stats={statsLoss} header={"25% Stop"} content={Stop25} onClick={stopChange}></StatRow>
-                <StatRowInput stats={statsNormal} header={"Premium"} value={premiumValue} onChange={premiumChange}></StatRowInput>
+                <StatRowInput identifier="PremiumInput" stats={statsNormal} header={"Premium"} value={premiumValue} onChange={premiumChange}></StatRowInput>
                 <StatRowTickerInput stats={statsNormal} header={"Ticker"} value={tickerValue} onChange={tickerChange}></StatRowTickerInput>
                 <StatRow stats={statsProfit} header={"T1=1R"} content={Take1}></StatRow>
                 <StatRow stats={statsProfit} header={"T2=2R"} content={Take2}></StatRow>
