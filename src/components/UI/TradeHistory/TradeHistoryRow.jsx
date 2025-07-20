@@ -128,7 +128,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     }
 
     const handleDeleteTrade = () => {
-        onDelete(id); 
+        onDelete(id, premium, contracts, risk); 
     } 
 
     return (
