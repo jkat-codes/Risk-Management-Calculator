@@ -10,6 +10,7 @@ function TradeHistoryLabels() {
             <span className="ColumnLabel">Acc Risk</span>
             <span className="ColumnLabel">Stop $</span>
             <span className="ColumnLabel">Stop %</span>
+            <span className="ColumnLabel">BE</span>
             <span className="ColumnLabel">T1=1R</span>
             <span className="ColumnLabel">T2=2R</span>
             <span className="ColumnLabel">T3=3R</span>

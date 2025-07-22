@@ -3,7 +3,6 @@ import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
-
 function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete }) {
 
     if (contracts <= 0) {
@@ -55,17 +54,18 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             setProfitLossVal((take * contracts * 100) - (premium * contracts * 100));
             setProfitLossPctVal((((take * contracts * 100) - (premium * contracts * 100)) / (premium * contracts * 100)) * 100);
 
-            if (take > stop) {
-                // Reset Stop Value and Stop Percent (break even)
-                setStopValue(premium);
-                setStopPercent(0);
+            if (take > stop && take !== premium) {
+                // Color the row green here
+            } else if (take === premium) {
+                // Color the row here
+            }
+            // Reset Stop Value and Stop Percent (break even)
+            setStopValue(premium);
+            setStopPercent(0);
 
-                // Reset the risk pct and risk balance to 0 in the Account Balance
-                if (!breakEven) {
-                    setAccBalance(risk);
-                    setBreakEven(true);
-                }
-
+            if (!breakEven) {
+                setAccBalance(risk);
+                setBreakEven(true);
             }
 
             setCloseValue(takeString);
@@ -152,6 +152,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             <span className="ColumnLabel">{risk}%</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${premium.toFixed(2)}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take2}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take3}</span>
