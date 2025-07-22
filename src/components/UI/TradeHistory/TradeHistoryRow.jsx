@@ -54,11 +54,23 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             setProfitLossVal((take * contracts * 100) - (premium * contracts * 100));
             setProfitLossPctVal((((take * contracts * 100) - (premium * contracts * 100)) / (premium * contracts * 100)) * 100);
 
+            // Get all columns in row
+            const parent = data.target.parentNode;
+            const rows = parent.childNodes;
+
             if (take > stop && take !== premium) {
+                console.log(take);
                 // Color the row green here
+                for (let i = 0; i < 15; i++) {
+                    rows[i].style.background = "#85b278";
+                }
             } else if (take === premium) {
                 // Color the row here
+                for (let i = 0; i < 15; i++) {
+                    rows[i].style.background = "#FFEE8C";
+                }
             }
+
             // Reset Stop Value and Stop Percent (break even)
             setStopValue(premium);
             setStopPercent(0);
@@ -67,6 +79,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                 setAccBalance(risk);
                 setBreakEven(true);
             }
+
 
             setCloseValue(takeString);
         }
