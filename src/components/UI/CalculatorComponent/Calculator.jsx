@@ -4,6 +4,7 @@ import './StatCard.css';
 import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import clsx from 'clsx';
 
 export function StatRow({ stats, header, content, onClick }) {
     return (
@@ -32,18 +33,31 @@ export function StatRowTickerInput({ stats, header, value, onChange }) {
     )
 }
 
-export function StatCard({ risk, stopPct, stopVal, loss, budget, contracts, onClick, ticker }) {
+export function StatCard({ risk, stopPct, stopVal, loss, budget, contracts, onClick, accRisk }) {
+
+    const numberRisk = Number(risk.substring(0, risk.indexOf("%")));
+    const totalAccRisk = accRisk.liveRiskPct + numberRisk;
+    const classes = clsx('CardContent', {
+        'blocked': totalAccRisk > accRisk.riskPctMax
+    })
+
     return (
         <div className="StatCardContainer" onClick={onClick}>
             <div className="StatisticHeader">
                 <span className="RiskValue">Account Risk: <strong>{risk}</strong></span>
                 <span className="StopValue">Stop Level: <strong>{stopPct}%</strong></span>
             </div>
-            <div className="CardContent">
-                <Statistic title="Max Budget" value={`$${budget}`}></Statistic>
-                <Statistic title="Contracts" value={contracts}></Statistic>
-                <Statistic title="Potential Loss" value={`$${loss}`}></Statistic>
-                <Statistic title="Stop Loss" value={`$${stopVal}`}></Statistic>
+            <div className={classes}>
+                {totalAccRisk > accRisk.riskPctMax ? (
+                    <span className="BlockedMessage">Exceeds Account Risk</span>
+                ) : (
+                    <>
+                        <Statistic title="Max Budget" value={`$${budget}`}></Statistic>
+                        <Statistic title="Contracts" value={contracts}></Statistic>
+                        <Statistic title="Potential Loss" value={`$${loss}`}></Statistic>
+                        <Statistic title="Stop Loss" value={`$${stopVal}`}></Statistic>
+                    </>
+                )}
             </div>
         </div >
     )
@@ -106,7 +120,16 @@ function Calculator({ balance, onCardClick }) {
         if (data.stopPct === '') missingFields.push("Stop");
         if (data.ticker === '') missingFields.push("Ticker");
 
-        if (missingFields.length > 0) {
+        if (Number(data.risk) + balance.liveRiskPct > balance.riskPctMax) {
+            toast.warning("Exceeds Account Risk!", {
+                position: 'top-right',
+                style: {
+                    position: "absolute",
+                    top: "100px",
+                    right: "20px",
+                }
+            })
+        } else if (missingFields.length > 0) {
             toast.error(`Missing: ${missingFields.join(', ')}`, {
                 position: 'top-right',
                 style: {
@@ -127,7 +150,6 @@ function Calculator({ balance, onCardClick }) {
 
             onCardClick(data);
         }
-
     }
 
 
@@ -203,9 +225,9 @@ function Calculator({ balance, onCardClick }) {
                         stopPct: stopLevel,
                         ticker: tickerValue,
                         premium: premiumValue,
-                        risk: "1"
+                        risk: "1",
                     })}
-                    premium={premiumValue} ticker={tickerValue} contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    premium={premiumValue} ticker={tickerValue} contracts={NumContracts1} loss={PotentialLoss1} budget={MaxBudget1} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
                 <StatCard risk="2%"
                     onClick={() => handleCardClick({
                         contracts: NumContracts2,
@@ -217,7 +239,7 @@ function Calculator({ balance, onCardClick }) {
                         premium: premiumValue,
                         risk: "2"
                     })}
-                    contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    contracts={NumContracts2} loss={PotentialLoss2} budget={MaxBudget2} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
                 <StatCard risk="2.5%"
                     onClick={() => handleCardClick({
                         contracts: NumContracts25,
@@ -229,7 +251,7 @@ function Calculator({ balance, onCardClick }) {
                         premium: premiumValue,
                         risk: "2.5"
                     })}
-                    contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    contracts={NumContracts25} loss={PotentialLoss25} budget={MaxBudget25} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
                 <StatCard risk="3%"
                     onClick={() => handleCardClick({
                         contracts: NumContracts3,
@@ -241,7 +263,7 @@ function Calculator({ balance, onCardClick }) {
                         premium: premiumValue,
                         risk: "3"
                     })}
-                    contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    contracts={NumContracts3} loss={PotentialLoss3} budget={MaxBudget3} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
                 <StatCard risk="4%"
                     onClick={() => handleCardClick({
                         contracts: NumContracts4,
@@ -253,7 +275,7 @@ function Calculator({ balance, onCardClick }) {
                         premium: premiumValue,
                         risk: "4"
                     })}
-                    contracts={NumContracts4} loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    contracts={NumContracts4} loss={PotentialLoss4} budget={MaxBudget4} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
                 <StatCard risk="5%"
                     onClick={() => handleCardClick({
                         contracts: NumContracts5,
@@ -265,7 +287,7 @@ function Calculator({ balance, onCardClick }) {
                         premium: premiumValue,
                         risk: "5"
                     })}
-                    contracts={NumContracts5} loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel}></StatCard>
+                    contracts={NumContracts5} loss={PotentialLoss5} budget={MaxBudget5} stopVal={stopCost} stopPct={stopLevel} accRisk={balance}></StatCard>
             </div>
         </div>
     )

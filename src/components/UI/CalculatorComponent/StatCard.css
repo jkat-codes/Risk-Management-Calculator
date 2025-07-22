@@ -8,12 +8,12 @@
 .StatCardContainer {
     display: flex;
     flex-direction: column;
-    width: 100%; 
-    flex: 1 1 calc((100% - 20px) / 3); 
+    width: 100%;
+    flex: 1 1 calc((100% - 20px) / 3);
     min-width: 263.3px;
     min-height: 193px;
     cursor: pointer;
-    position: relative; 
+    position: relative;
 }
 
 .StatisticHeader {
@@ -32,9 +32,6 @@
     font-size: 24px;
 }
 
-.StatCardContainer:nth-child(2) {
-    margin-bottom: auto;
-}
 
 .CardContent {
     background-color: #3c4142;
@@ -42,6 +39,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 13px;
+    flex: 1;
 }
 
 .StatisticContainer {
@@ -65,43 +63,75 @@
     font-weight: bold;
 }
 
+.blocked {
+    background-color: #df5e5e !important;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: not-allowed !important;
+    /* pointer-events: none !important; */
+}
+
+.BlockedMessage {
+    color: white;
+    font-weight: bold;
+}
+
 @media screen and (min-width: 1220px) {
-    .StatisticValue, .StatisticTitle {
+
+    .StatisticValue,
+    .StatisticTitle,
+    .BlockedMessage {
         font-size: 16px;
     }
 
-    .RiskValue, .StopValue {
+    .RiskValue,
+    .StopValue {
         font-size: 16px;
     }
 }
 
 @media screen and (min-width: 1500px) {
-    .StatisticValue, .StatisticTitle {
+
+    .StatisticValue,
+    .StatisticTitle,
+    .BlockedMessage {
         font-size: 18px;
     }
 
-    .RiskValue, .StopValue {
+    .RiskValue,
+    .StopValue {
         font-size: 18px;
     }
 }
 
 
 @media screen and (min-width: 1700px) {
-    .StatisticValue, .StatisticTitle {
+
+    .StatisticValue,
+    .StatisticTitle,
+    .BlockedMessage {
         font-size: 20px;
     }
 
-    .RiskValue, .StopValue {
+    .RiskValue,
+    .StopValue {
         font-size: 20px;
     }
 }
 
 @media screen and (min-width: 1900px) {
-    .StatisticValue, .StatisticTitle {
+
+    .StatisticValue,
+    .StatisticTitle,
+    .BlockedMessage {
         font-size: 22px;
     }
 
-    .RiskValue, .StopValue {
+    .RiskValue,
+    .StopValue {
         font-size: 22px;
     }
 }
