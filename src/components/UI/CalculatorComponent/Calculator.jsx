@@ -18,7 +18,7 @@ export function StatRowInput({ identifier, stats, header, value, onChange }) {
     return (
         <div className="StatContainer">
             <div style={{ backgroundColor: stats.headerBackground }} className="StatHeader">{header}</div>
-            <input id={identifier} type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none'}} className="StatContent" />
+            <input id={identifier} type='number' value={value && parseFloat(value) > 0 ? value : ''} onChange={onChange} style={{ backgroundColor: stats.contentBackground, textAlign: 'center', border: 'none', cursor: 'text', textDecoration: 'none' }} className="StatContent" />
         </div>
     )
 }
@@ -118,20 +118,13 @@ function Calculator({ balance, onCardClick }) {
             })
         } else {
             // Clear the premium and stop
-            setPremium(''); 
-            setTicker(''); 
-            // Remove the stop level
-            setStopLevel(''); 
-            const highlightedElements = document.querySelectorAll(".highlighted");
-            if (highlightedElements.length > 0) {
-                highlightedElements.forEach((element) => {
-                    element.classList.remove("highlighted");
-                })
-            }
+            setPremium('');
+            setTicker('');
+
             // Place cursor in Premium input
-            const PremiumInputField = document.getElementById("PremiumInput"); 
-            PremiumInputField.focus(); 
-            
+            const PremiumInputField = document.getElementById("PremiumInput");
+            PremiumInputField.focus();
+
             onCardClick(data);
         }
 
