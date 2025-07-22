@@ -163,7 +163,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             </span>
             <span className="ColumnLabel">${premium.toFixed(2)}</span>
             <span className="ColumnLabel">{risk}%</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue.toFixed(2)}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${premium.toFixed(2)}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
