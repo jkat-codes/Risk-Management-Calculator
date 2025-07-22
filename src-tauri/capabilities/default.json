@@ -6,6 +6,11 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "core:window:allow-close",
+    "core:event:allow-listen",
+    "core:event:default",
+    "updater:allow-check",
+    "updater:default"
   ]
 }
