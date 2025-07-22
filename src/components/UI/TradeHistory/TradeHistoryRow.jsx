@@ -4,7 +4,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
 
-function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete}) {
+function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete }) {
 
     if (contracts <= 0) {
         return;
@@ -106,19 +106,19 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         const profit = revenue - cost;
 
         const closeData = {
-            cost: cost, 
-            revenue: revenue, 
-            profit: profit, 
-            risk: risk, 
-            stopPct: StopPercent, 
-            stopVal: StopValue, 
-            contracts: contracts, 
-            time: time, 
-            ticker: ticker, 
-            premium: premium, 
-            type: TradeType, 
-            PLVal: value, 
-            PLPct: ProfitLossPct, 
+            cost: cost,
+            revenue: revenue,
+            profit: profit,
+            risk: risk,
+            stopPct: StopPercent,
+            stopVal: StopValue,
+            contracts: contracts,
+            time: time,
+            ticker: ticker,
+            premium: premium,
+            type: TradeType,
+            PLVal: value,
+            PLPct: ProfitLossPct,
             closing_premium: Close
         }
 
@@ -128,8 +128,8 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     }
 
     const handleDeleteTrade = () => {
-        onDelete(id, premium, contracts, risk); 
-    } 
+        onDelete(id, premium, contracts, risk);
+    }
 
     return (
         <div className="HistoryRowContainer">
@@ -142,7 +142,6 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                     border: 'none',
                     background: 'transparent',
                     textAlign: 'center',
-                    fontSize: '12px',
                     outline: 'none',
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',
@@ -164,7 +163,6 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                     border: 'none',
                     background: 'transparent',
                     textAlign: 'center',
-                    fontSize: '12px',
                     outline: 'none',
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',
@@ -178,7 +176,6 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                     border: 'none',
                     background: 'transparent',
                     textAlign: 'center',
-                    fontSize: '12px',
                     outline: 'none',
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',
