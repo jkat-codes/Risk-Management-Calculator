@@ -184,11 +184,11 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             </span>
             <span className="ColumnLabel">{Close && parseFloat(Close) > 0 ? Close : ''}</span>
             <span className="ColumnLabel clickable">
-                <button className="ConfirmBtn" onClick={handleOpenModal}>Close Pos</button>
+                <button className="ConfirmBtn" onClick={handleOpenModal}>Close</button>
                 {showModal && <ConfirmationModal onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
             </span>
             <span className="ColumnLabel clickable">
-                <button className="DeleteBtn" onClick={handleDeleteTrade}>Delete Pos</button>
+                <button className="DeleteBtn" onClick={handleDeleteTrade}>Delete</button>
             </span>
         </div>
     )
