@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "risk-calculator",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "identifier": "jkatcodes.calculator.com",
   "build": {
     "frontendDist": "../dist",
@@ -14,7 +14,7 @@
       {
         "title": "Risk Calculator",
         "label": "main",
-        "minWidth": 1220,
+        "minWidth": 1330,
         "minHeight": 1000,
         "visible": true,
         "decorations": true,

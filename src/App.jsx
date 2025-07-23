@@ -12,30 +12,32 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
-  const [updatedBalance, setUpdatedBalance] = useState(0); 
+  const [updatedBalance, setUpdatedBalance] = useState(0);
+  const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
 
+  // Fetch latest balance from Supabase on mount
   useEffect(() => {
     const fetchBalance = async () => {
       try {
-        const {data, error} = await supabase 
+        const { data, error } = await supabase
           .from('orders_placed')
           .select('balance')
-          .order('placed_at', {ascending: false})
+          .order('placed_at', { ascending: false })
           .limit(1)
-          .single(); 
+          .single();
         if (error) {
           console.log("Error fetching latest balance: ", error);
         } else {
-          console.log(data.balance); 
+          console.log(data.balance);
 
           setUpdatedBalance(data.balance);
         }
       } catch (err) {
-        console.log(err); 
+        console.log(err);
       }
     }
 
-    fetchBalance(); 
+    fetchBalance();
   }, [])
 
 
@@ -49,13 +51,12 @@ function App() {
 
   useEffect(() => {
     setBalance(prev => ({
-      ...prev, 
-      total: updatedBalance, 
+      ...prev,
+      total: updatedBalance,
       liveBalance: updatedBalance
-    })); 
+    }));
   }, [updatedBalance])
 
-  const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
 
   const handleCardClick = (data) => {
 
@@ -131,8 +132,8 @@ function App() {
     setCreatedTradeComponents(prev => [newComponent, ...prev]);
   }
 
-  const handleConfirmTrade = async(tradeId, closeData) => {
-    const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type, PLVal, PLPct, closing_premium} = closeData;
+  const handleConfirmTrade = async (tradeId, closeData) => {
+    const { cost, revenue, profit, risk, stopPct, stopVal, contracts, time, ticker, premium, type, PLVal, PLPct, closing_premium } = closeData;
 
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     var Risk = risk;
@@ -146,7 +147,7 @@ function App() {
       Risk = 0;
     }
 
-    const newLiveBalance = balance.liveBalance + revenue; 
+    const newLiveBalance = balance.liveBalance + revenue;
 
     setBalance(prevBalance => ({
       ...prevBalance,
@@ -158,27 +159,27 @@ function App() {
 
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
 
-    const cryptoID = crypto.randomUUID(); 
+    const cryptoID = crypto.randomUUID();
 
     // Add to supabase here
-    const {error} = await supabase 
+    const { error } = await supabase
       .from("orders_placed")
       .insert({
-        id: cryptoID, 
-        placed_at: time, 
-        premium_paid: premium, 
-        risk_per_trade: risk, 
-        stop_loss_val: stopVal, 
-        stop_loss_pct: stopPct, 
-        closing_premium: closing_premium, 
-        type: type, 
-        balance: newLiveBalance, 
-        contracts: contracts, 
+        id: cryptoID,
+        placed_at: time,
+        premium_paid: premium,
+        risk_per_trade: risk,
+        stop_loss_val: stopVal,
+        stop_loss_pct: stopPct,
+        closing_premium: closing_premium,
+        type: type,
+        balance: newLiveBalance,
+        contracts: contracts,
         ticker: ticker
       })
 
     if (error) {
-      console.log("Error adding trade to database: ", error); 
+      console.log("Error adding trade to database: ", error);
       toast.warn("Error adding trade to database. Closing...", {
         position: 'top-right',
         style: {
@@ -186,7 +187,7 @@ function App() {
           top: "100px",
           right: "20px"
         }
-      }); 
+      });
     } else {
       // Notify successful close
       toast.success('Position closed successfully!', {
@@ -203,16 +204,16 @@ function App() {
   const handleDeleteTrade = (tradeId, premium, contracts, risk) => {
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     if (!tradeToClose) {
-      console.log("Cannot delete a trade that doesn't exist!"); 
-      return; 
+      console.log("Cannot delete a trade that doesn't exist!");
+      return;
     }
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
 
     // Need to reset balance here
     setBalance(prevBalance => ({
-      ...prevBalance, 
+      ...prevBalance,
       liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
-      liveRiskPct: prevBalance.liveRiskPct - risk, 
+      liveRiskPct: prevBalance.liveRiskPct - risk,
       riskPct: prevBalance.riskPct - risk
     }))
   }
@@ -228,7 +229,17 @@ function App() {
       ...prev,
       liveRiskPct: updatedRisk
     }))
+  }
 
+  const updateLiveBalance = (value) => {
+    if (value === 0) {
+      return;
+    }
+    const updatedBalance = balance.liveBalance - value > 0 ? balance.liveBalance - value : 0;
+    setBalance(prev => ({
+      ...prev,
+      liveBalance: updatedBalance
+    }));
   }
 
   return (
