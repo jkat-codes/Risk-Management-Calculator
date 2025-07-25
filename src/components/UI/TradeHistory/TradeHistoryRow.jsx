@@ -18,10 +18,10 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     const [showModal, setShowModal] = useState(false);
     const [breakEven, setBreakEven] = useState(false);
 
-    const Take1 = (premium * 1.25).toFixed(2);
-    const Take2 = (premium * 1.5).toFixed(2);
-    const Take3 = (premium * 1.75).toFixed(2);
-    const Take4 = (premium * 2).toFixed(2);
+    const Take1 = premium * (1 + 1 * (stopPct / 100));
+    const Take2 = premium * (1 + 2 * (stopPct / 100));
+    const Take3 = premium * (1 + 3 * (stopPct / 100));
+    const Take4 = premium * (1 + 4 * (stopPct / 100));
 
     var value = ProfitLossVal;
     const TradeType = TradeTypeVal;
