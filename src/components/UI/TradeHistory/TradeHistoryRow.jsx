@@ -76,12 +76,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
 
             if (take > stop && take !== PremiumVal) {
                 // Color the row green here
-                for (let i = 0; i < 15; i++) {
+                for (let i = 0; i < 16; i++) {
                     rows[i].style.background = "#85b278";
                 }
             } else if (take === PremiumVal) {
                 // Color the row here
-                for (let i = 0; i < 15; i++) {
+                for (let i = 0; i < 16; i++) {
                     rows[i].style.background = "#FFEE8C";
                 }
             }
@@ -201,7 +201,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                 }} />
             </span>
             <span className="ColumnLabel">{risk}%</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue}</span>
+            <span className="ColumnLabel" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${PremiumVal}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
