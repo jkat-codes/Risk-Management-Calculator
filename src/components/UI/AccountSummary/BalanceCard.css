@@ -8,8 +8,8 @@
 .BalanceCardContainer {
     min-width: 250px;
     min-height: 145px;
-    height: 100%; 
-    max-height: 100%; 
+    height: 100%;
+    max-height: 100%;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -21,7 +21,9 @@
 .BalanceTitle,
 .BalanceActual,
 .RiskTitlePct,
-.RiskActualPct {
+.RiskActualPct,
+.RiskTitleVal,
+.RiskActualVal {
     display: flex;
     align-items: center;
     margin-right: auto;
@@ -29,22 +31,18 @@
 }
 
 .BalanceTitle,
-.RiskTitlePct {
+.RiskTitlePct,
+.RiskTitleVal {
     font-weight: bold;
 }
 
-.BalanceTitle {
+.BalanceTitle,
+.RiskTitlePct,
+.RiskTitleVal {
     font-size: 12px;
 }
 
-.BalanceActual {
-    font-size: 30px;
-}
-
-.RiskTitlePct {
-    font-size: 10px;
-}
-
+.BalanceActual,
 .RiskActualPct {
-    font-size: 20px;
+    font-size: 30px;
 }

@@ -8,10 +8,10 @@ function BalanceCard({ balance }) {
         <div className="BalanceCardContainer">
             <div className="BalanceTitle">Account Balance</div>
             <div className="BalanceActual">${balance.liveBalance.toLocaleString()}</div>
-            <div className="RiskTitlePct">Acc at Risk</div>
-            <div className="RiskActualPct">${riskVal.toLocaleString()}</div>
             <div className="RiskTitlePct">Pct of Acc at Risk</div>
             <div className="RiskActualPct">{riskPct.toLocaleString()}%</div>
+            <div className="RiskTitleVal">Acc at Risk</div>
+            <div className="RiskActualVal">${riskVal.toLocaleString()}</div>
         </div>
     )
 }
