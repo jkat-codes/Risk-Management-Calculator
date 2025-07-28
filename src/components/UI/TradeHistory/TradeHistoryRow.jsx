@@ -19,9 +19,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     const [showModal, setShowModal] = useState(false);
     const [breakEven, setBreakEven] = useState(false);
     const [OriginalPremium, setOriginalPremium] = useState(premium);
+    const [OriginalContracts, setOriginalContracts] = useState(contracts);
+    const [ContractsValue, setContractsValue] = useState(contracts);
 
     var value = ProfitLossVal;
     var PremiumVal = PremiumValue;
+    var ContractsVal = ContractsValue;
     const TradeType = TradeTypeVal;
     const ProfitLossPct = ProfitLossPctVal;
     const Close = CloseValue;
@@ -44,9 +47,13 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     }
 
     const PremiumChange = (e) => {
-        // Adjust here if you want $(0.00)
-        setPremiumValue(e.target.value);
-        updateBalance(OriginalPremium, e.target.value, contracts, id);
+        setPremiumValue(e.target.value); // Changes PremiumVal on next render
+        updateBalance(OriginalPremium, e.target.value, ContractsVal, id);
+    }
+
+    const ContractsChange = (e) => {
+        setContractsValue(e.target.value); // Changes ContractsVal on next render
+        updateBalance(OriginalPremium, PremiumVal, e.target.value, id);
     }
 
     const HandleRowClick = (data) => {
@@ -60,15 +67,14 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             stop = Number(stop);
 
 
-            setProfitLossVal(((take * contracts * 100) - (PremiumVal * contracts * 100)).toFixed(2));
-            setProfitLossPctVal(((((take * contracts * 100) - (PremiumVal * contracts * 100)) / (PremiumVal * contracts * 100)) * 100).toFixed(2));
+            setProfitLossVal(((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)).toFixed(2));
+            setProfitLossPctVal(((((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)) / (PremiumVal * ContractsVal * 100)) * 100).toFixed(2));
 
             // Get all columns in row
             const parent = data.target.parentNode;
             const rows = parent.childNodes;
 
             if (take > stop && take !== PremiumVal) {
-                console.log(take);
                 // Color the row green here
                 for (let i = 0; i < 15; i++) {
                     rows[i].style.background = "#85b278";
@@ -121,10 +127,8 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             return;
         }
 
-        const contracts = Number(children[2].childNodes[1].value);
-
-        const revenue = contracts * 100 * price;
-        const cost = contracts * 100 * PremiumVal;
+        const revenue = ContractsVal * 100 * price;
+        const cost = ContractsVal * 100 * PremiumVal;
         const profit = revenue - cost;
 
         const closeData = {
@@ -134,7 +138,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             risk: risk,
             stopPct: StopPercent,
             stopVal: StopValue,
-            contracts: contracts,
+            contracts: ContractsVal,
             time: time,
             ticker: ticker,
             premium: PremiumVal,
@@ -150,7 +154,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     }
 
     const handleDeleteTrade = () => {
-        onDelete(id, PremiumVal, contracts, risk);
+        onDelete(id, PremiumVal, ContractsVal, risk);
     }
 
     return (
@@ -172,6 +176,19 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             </span>
             <span className="ColumnLabel">
                 <input id='TradeType' type='number' onChange={PremiumChange} value={PremiumVal} style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'center',
+                    outline: 'none',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
+                }} />
+            </span>
+            <span className="ColumnLabel">
+                <input id='TradeType' type='number' onChange={ContractsChange} value={ContractsVal} style={{
                     width: '100%',
                     height: '100%',
                     border: 'none',

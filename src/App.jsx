@@ -234,7 +234,7 @@ function App() {
   const updateLiveBalance = (original, updated, contracts, tradeId) => {
     // original is the original premium, updated is the live changed oneS
 
-    if (original === null || original === "" || updated === null || updated === "") {
+    if (original === null || original === "" || updated === null || updated === "" || contracts === "") {
       return;
     }
 

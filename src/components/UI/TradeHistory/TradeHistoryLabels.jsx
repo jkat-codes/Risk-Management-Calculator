@@ -7,6 +7,7 @@ function TradeHistoryLabels() {
             <span className="ColumnLabel">Time</span>
             <span className="ColumnLabel">Type</span>
             <span className="ColumnLabel">Premium</span>
+            <span className="ColumnLabel">Contracts</span>
             <span className="ColumnLabel">Acc Risk</span>
             <span className="ColumnLabel">Stop $</span>
             <span className="ColumnLabel">Stop %</span>
