@@ -3,7 +3,7 @@ import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
-function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete }) {
+function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete, updateBalance }) {
 
     if (contracts <= 0) {
         return;
@@ -15,18 +15,21 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     const [CloseValue, setCloseValue] = useState(0);
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
+    const [PremiumValue, setPremiumValue] = useState(premium);
     const [showModal, setShowModal] = useState(false);
     const [breakEven, setBreakEven] = useState(false);
-
-    const Take1 = premium * (1 + 1 * (stopPct / 100));
-    const Take2 = premium * (1 + 2 * (stopPct / 100));
-    const Take3 = premium * (1 + 3 * (stopPct / 100));
-    const Take4 = premium * (1 + 4 * (stopPct / 100));
+    const [OriginalPremium, setOriginalPremium] = useState(premium);
 
     var value = ProfitLossVal;
+    var PremiumVal = PremiumValue;
     const TradeType = TradeTypeVal;
     const ProfitLossPct = ProfitLossPctVal;
     const Close = CloseValue;
+
+    const Take1 = (PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2);
+    const Take2 = (PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2);
+    const Take3 = (PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2);
+    const Take4 = (PremiumVal * (1 + 4 * (stopPct / 100))).toFixed(2);
 
     const PLValChange = (e) => {
         setProfitLossVal(e.target.value);
@@ -40,6 +43,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         setProfitLossPctVal(e.target.value);
     }
 
+    const PremiumChange = (e) => {
+        // Adjust here if you want $(0.00)
+        setPremiumValue(e.target.value);
+        updateBalance(OriginalPremium, e.target.value, contracts, id);
+    }
+
     const HandleRowClick = (data) => {
         if (data.target) {
             var take = String(data.target.innerHTML);
@@ -51,20 +60,20 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             stop = Number(stop);
 
 
-            setProfitLossVal((take * contracts * 100) - (premium * contracts * 100));
-            setProfitLossPctVal((((take * contracts * 100) - (premium * contracts * 100)) / (premium * contracts * 100)) * 100);
+            setProfitLossVal(((take * contracts * 100) - (PremiumVal * contracts * 100)).toFixed(2));
+            setProfitLossPctVal(((((take * contracts * 100) - (PremiumVal * contracts * 100)) / (PremiumVal * contracts * 100)) * 100).toFixed(2));
 
             // Get all columns in row
             const parent = data.target.parentNode;
             const rows = parent.childNodes;
 
-            if (take > stop && take !== premium) {
+            if (take > stop && take !== PremiumVal) {
                 console.log(take);
                 // Color the row green here
                 for (let i = 0; i < 15; i++) {
                     rows[i].style.background = "#85b278";
                 }
-            } else if (take === premium) {
+            } else if (take === PremiumVal) {
                 // Color the row here
                 for (let i = 0; i < 15; i++) {
                     rows[i].style.background = "#FFEE8C";
@@ -72,7 +81,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             }
 
             // Reset Stop Value and Stop Percent (break even)
-            setStopValue(premium);
+            setStopValue(PremiumVal);
             setStopPercent(0);
 
             if (!breakEven) {
@@ -115,7 +124,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
         const contracts = Number(children[2].childNodes[1].value);
 
         const revenue = contracts * 100 * price;
-        const cost = contracts * 100 * premium;
+        const cost = contracts * 100 * PremiumVal;
         const profit = revenue - cost;
 
         const closeData = {
@@ -128,7 +137,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             contracts: contracts,
             time: time,
             ticker: ticker,
-            premium: premium,
+            premium: PremiumVal,
             type: TradeType,
             PLVal: value,
             PLPct: ProfitLossPct,
@@ -141,7 +150,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     }
 
     const handleDeleteTrade = () => {
-        onDelete(id, premium, contracts, risk);
+        onDelete(id, PremiumVal, contracts, risk);
     }
 
     return (
@@ -161,11 +170,23 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                     whiteSpace: 'nowrap'
                 }} />
             </span>
-            <span className="ColumnLabel">${premium.toFixed(2)}</span>
+            <span className="ColumnLabel">
+                <input id='TradeType' type='number' onChange={PremiumChange} value={PremiumVal} style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    background: 'transparent',
+                    textAlign: 'center',
+                    outline: 'none',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
+                }} />
+            </span>
             <span className="ColumnLabel">{risk}%</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${premium.toFixed(2)}</span>
+            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${PremiumVal}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take2}</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take3}</span>

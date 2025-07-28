@@ -77,7 +77,6 @@ function App() {
       second: '2-digit'
     });
 
-    console.log(formattedString);
 
     if (existsAlready) {
       console.log("Duplicate ID, skipping...");
@@ -126,7 +125,8 @@ function App() {
       ticker: (data.ticker).toUpperCase(),
       premium: data.premium,
       risk: data.risk,
-      time: formattedString
+      time: formattedString,
+      baseline: balance.liveBalance
     }
 
     setCreatedTradeComponents(prev => [newComponent, ...prev]);
@@ -231,15 +231,48 @@ function App() {
     }))
   }
 
-  const updateLiveBalance = (value) => {
-    if (value === 0) {
+  const updateLiveBalance = (original, updated, contracts, tradeId) => {
+    // original is the original premium, updated is the live changed oneS
+
+    if (original === null || original === "" || updated === null || updated === "") {
       return;
     }
-    const updatedBalance = balance.liveBalance - value > 0 ? balance.liveBalance - value : 0;
+
+    const tradeIndex = createdTradeComponents.findIndex(trade => trade.id === tradeId);
+    if (tradeIndex === -1) return;
+
+    const updatedTrades = [...createdTradeComponents];
+    updatedTrades[tradeIndex].premium = updated;
+    updatedTrades[tradeIndex].contracts = contracts;
+
+    let runningBalance = balance.total;
+
+    updatedTrades.forEach((trade, index) => {
+      trade.baseline = runningBalance;
+      const tradeCost = trade.premium * 100 * trade.contracts;
+      runningBalance = Math.max(0, runningBalance - tradeCost);
+    });
+
+    setCreatedTradeComponents(updatedTrades);
+
+    // const originalCost = original * 100 * contracts;
+    // const updatedCost = updated * 100 * contracts;
+    // const difference = updatedCost - originalCost;
+
+    // console.log("Original: ", originalCost);
+    // console.log("Updated: ", updatedCost);
+    // console.log("Difference: ", difference);
+
+    // console.log("Original Balance: ", balance.liveBalance); // this needs to be a constant value
+    // const updatedBalance = balance.liveBalance - difference > 0 ? balance.liveBalance - difference : 0;
+    // console.log("Updated Balance: ", updatedBalance);
+
     setBalance(prev => ({
       ...prev,
-      liveBalance: updatedBalance
+      liveBalance: runningBalance
     }));
+
+    console.log("Balances recalculated successfully");
   }
 
   return (
@@ -268,6 +301,7 @@ function App() {
                 onConfirm={handleConfirmTrade}
                 setAccBalance={setAccBalance}
                 onDelete={handleDeleteTrade}
+                updateBalance={updateLiveBalance}
               ></TradeHistoryRow>
             ))}
           </div>
