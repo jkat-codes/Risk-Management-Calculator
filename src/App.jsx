@@ -255,18 +255,6 @@ function App() {
 
     setCreatedTradeComponents(updatedTrades);
 
-    // const originalCost = original * 100 * contracts;
-    // const updatedCost = updated * 100 * contracts;
-    // const difference = updatedCost - originalCost;
-
-    // console.log("Original: ", originalCost);
-    // console.log("Updated: ", updatedCost);
-    // console.log("Difference: ", difference);
-
-    // console.log("Original Balance: ", balance.liveBalance); // this needs to be a constant value
-    // const updatedBalance = balance.liveBalance - difference > 0 ? balance.liveBalance - difference : 0;
-    // console.log("Updated Balance: ", updatedBalance);
-
     setBalance(prev => ({
       ...prev,
       liveBalance: runningBalance
