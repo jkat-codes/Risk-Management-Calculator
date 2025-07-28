@@ -71,6 +71,10 @@
     #ProfitLossPct {
         font-size: 14px;
     }
+
+    .datetime {
+        font-size: 12px;
+    }
 }
 
 @media screen and (min-width: 1500px) {
@@ -83,6 +87,11 @@
     #ProfitLossPct {
         font-size: 16px;
     }
+
+    .datetime {
+        font-size: 12px;
+    }
+
 }
 
 @media screen and (min-width: 1700px) {
@@ -95,6 +104,11 @@
     #ProfitLossPct {
         font-size: 18px;
     }
+
+    .datetime {
+        font-size: 12px;
+    }
+
 }
 
 
@@ -107,5 +121,9 @@
     #ProfitLossVal,
     #ProfitLossPct {
         font-size: 20px;
+    }
+
+    .datetime {
+        font-size: 12px;
     }
 }
