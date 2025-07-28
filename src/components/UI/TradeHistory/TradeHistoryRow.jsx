@@ -160,7 +160,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     return (
         <div className="HistoryRowContainer">
             <span className="ColumnLabel">{ticker}</span>
-            <span className="ColumnLabel">{time}</span>
+            <span className="ColumnLabel datetime">{time}</span>
             <span className="ColumnLabel">
                 <input id='TradeType' type='text' onChange={TradeTypeChange} value={TradeType} style={{
                     width: '100%',
