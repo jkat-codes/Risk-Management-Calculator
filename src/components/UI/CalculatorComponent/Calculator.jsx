@@ -158,10 +158,10 @@ function Calculator({ balance, onCardClick }) {
     const Stop20 = (premiumValue * 0.80).toFixed(2);
     const Stop25 = (premiumValue * 0.75).toFixed(2);
 
-    const Take1 = premiumValue * (1 + 1 * (stopLevel / 100));
-    const Take2 = premiumValue * (1 + 2 * (stopLevel / 100));
-    const Take3 = premiumValue * (1 + 3 * (stopLevel / 100));
-    const Take4 = premiumValue * (1 + 4 * (stopLevel / 100));
+    const Take1 = (premiumValue * (1 + 1 * (stopLevel / 100))).toFixed(2);
+    const Take2 = (premiumValue * (1 + 2 * (stopLevel / 100))).toFixed(2);
+    const Take3 = (premiumValue * (1 + 3 * (stopLevel / 100))).toFixed(2);
+    const Take4 = (premiumValue * (1 + 4 * (stopLevel / 100))).toFixed(2);
 
     const PotentialLoss1 = (totalBalance * .01).toFixed(2);
     const PotentialLoss2 = (totalBalance * .02).toFixed(2);
