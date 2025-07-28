@@ -239,7 +239,7 @@ function App() {
     }
 
     const tradeIndex = createdTradeComponents.findIndex(trade => trade.id === tradeId);
-    if (tradeIndex === -1) return;
+    if (tradeIndex === -1) return; // trade not found
 
     const updatedTrades = [...createdTradeComponents];
     updatedTrades[tradeIndex].premium = updated;
