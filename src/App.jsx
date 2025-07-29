@@ -6,6 +6,7 @@ import Calculator from './components/UI/CalculatorComponent/Calculator';
 import TradeHistoryLabels from './components/UI/TradeHistory/TradeHistoryLabels';
 import TradeHistoryRow from './components/UI/TradeHistory/TradeHistoryRow';
 import Updater from './services/updater/updater';
+import { addTrade, deleteTrade } from './hooks/database/persistence';
 import './App.css'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -130,6 +131,22 @@ function App() {
     }
 
     setCreatedTradeComponents(prev => [newComponent, ...prev]);
+
+    // Add to persistence database
+    const tradeData = {
+      ticker: data.ticker,
+      id: newId,
+      contracts: parseInt(data.contracts, 10),
+      account_risk: balance.liveRiskPct,
+      premium: data.premium,
+      stop_loss_value: data.stopVal,
+      stop_loss_pct: data.stopPct,
+      account_balance: balance.liveBalance,
+      trade_active: true
+    }
+
+    addTrade(tradeData);
+
   }
 
   const handleConfirmTrade = async (tradeId, closeData) => {
@@ -208,6 +225,8 @@ function App() {
       return;
     }
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
+
+    deleteTrade(tradeId);
 
     // Need to reset balance here
     setBalance(prevBalance => ({
