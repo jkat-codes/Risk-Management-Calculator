@@ -101,10 +101,9 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             setStopPercent(0);
 
             if (!breakEven) {
-                setAccBalance(risk);
+                setAccBalance(id);
                 setBreakEven(true);
             }
-
 
             setCloseValue(takeString);
         }
