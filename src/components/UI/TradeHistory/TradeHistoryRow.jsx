@@ -21,6 +21,8 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
     const [OriginalPremium, setOriginalPremium] = useState(premium);
     const [OriginalContracts, setOriginalContracts] = useState(contracts);
     const [ContractsValue, setContractsValue] = useState(contracts);
+    const [TakeProfit, setTakeProfit] = useState(false);
+    const [BreakEvenHit, setBreakEvenHit] = useState(false);
 
     var value = ProfitLossVal;
     var PremiumVal = PremiumValue;
@@ -48,12 +50,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
 
     const PremiumChange = (e) => {
         setPremiumValue(e.target.value); // Changes PremiumVal on next render
-        updateBalance(OriginalPremium, e.target.value, ContractsVal, id);
+        updateBalance(OriginalPremium, e.target.value, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue);
     }
 
     const ContractsChange = (e) => {
         setContractsValue(e.target.value); // Changes ContractsVal on next render
-        updateBalance(OriginalPremium, PremiumVal, e.target.value, id);
+        updateBalance(OriginalPremium, PremiumVal, e.target.value, id, BreakEvenHit, TakeProfit, CloseValue);
     }
 
     const HandleRowClick = (data) => {
@@ -66,6 +68,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
             take = Number(take);
             stop = Number(stop);
 
+            console.log("Take", take);
 
             setProfitLossVal(((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)).toFixed(2));
             setProfitLossPctVal(((((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)) / (PremiumVal * ContractsVal * 100)) * 100).toFixed(2));
@@ -79,11 +82,18 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
                 for (let i = 0; i < 16; i++) {
                     rows[i].style.background = "#85b278";
                 }
+                setTakeProfit(true);
+                setBreakEvenHit(false);
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, true, takeString);
+
             } else if (take === PremiumVal) {
                 // Color the row here
                 for (let i = 0; i < 16; i++) {
                     rows[i].style.background = "#FFEE8C";
                 }
+                setBreakEvenHit(true);
+                setTakeProfit(false);
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, true, false, takeString);
             }
 
             // Reset Stop Value and Stop Percent (break even)
