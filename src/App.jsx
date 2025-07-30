@@ -6,7 +6,7 @@ import Calculator from './components/UI/CalculatorComponent/Calculator';
 import TradeHistoryLabels from './components/UI/TradeHistory/TradeHistoryLabels';
 import TradeHistoryRow from './components/UI/TradeHistory/TradeHistoryRow';
 import Updater from './services/updater/updater';
-import { addTrade, deleteTrade } from './hooks/database/persistence';
+import { addTrade, deleteTrade, fetchActiveTrades, updateTrade } from './hooks/database/persistence';
 import './App.css'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,11 +14,14 @@ import 'react-toastify/dist/ReactToastify.css';
 function App() {
 
   const [updatedBalance, setUpdatedBalance] = useState(0);
+  const [updatedRiskPct, setUpdatedRiskPct] = useState(0);
+  const [updatedRiskVal, setUpdatedRiskVal] = useState(0);
   const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
+  const [initialAccountBalance, setInitialAccountBalance] = useState(0);
 
   // Fetch latest balance from Supabase on mount
   useEffect(() => {
-    const fetchBalance = async () => {
+    const fetchInitialBalance = async () => {
       try {
         const { data, error } = await supabase
           .from('orders_placed')
@@ -30,15 +33,74 @@ function App() {
           console.log("Error fetching latest balance: ", error);
         } else {
           console.log(data.balance);
-
-          setUpdatedBalance(data.balance);
+          return data.balance;
         }
       } catch (err) {
         console.log(err);
+        return 0;
+      }
+    };
+
+    async function loadTrades() {
+      const result = await fetchActiveTrades();
+      if (result.success) {
+        const trades = result.data;
+        if (trades.length === 0) {
+          // No active trades, fetch latest balance from last placed trade
+          const initialBalance = await fetchInitialBalance();
+          setInitialAccountBalance(initialBalance);
+          setUpdatedBalance(initialBalance);
+          setUpdatedRiskPct(0);
+          setUpdatedRiskVal(0);
+        } else {
+          // Active trades, compute total trade costs and subtract from latest placed trade(s) account balance
+          const tradeComponents = [];
+          let totalBalanceUsed = 0;
+          let accountBalance = 0;
+          let totalRiskAmount = 0;
+          let totalRiskValAmount = 0;
+
+          accountBalance = trades[trades.length - 1].account_balance; // gets earliest starting account balance and calculates from there
+          setInitialAccountBalance(accountBalance);
+
+          for (let i = 0; i < trades.length; i++) {
+            const trade = trades[i];
+            const newComponent = {
+              id: trade.trade_id,
+              contracts: trade.contracts,
+              loss: trade.loss,
+              budget: trade.trade_cost,
+              stopVal: trade.stop_loss_value,
+              stopPct: trade.stop_loss_pct,
+              ticker: trade.ticker,
+              premium: trade.entry_price,
+              risk: Math.abs(trade.account_risk),
+              time: trade.created_at,
+              baseline: trade.account_balance
+            }
+            tradeComponents.push(newComponent);
+            totalBalanceUsed += Math.abs(trade.trade_cost);
+            totalRiskAmount += Math.abs(trade.account_risk);
+            totalRiskValAmount += Math.abs(trade.loss);
+          }
+
+          setCreatedTradeComponents(tradeComponents);
+          setUpdatedBalance(accountBalance - totalBalanceUsed);
+          setUpdatedRiskPct(totalRiskAmount);
+          setUpdatedRiskVal(totalRiskValAmount);
+        }
+      } else {
+        console.log(result.error);
+        const initialBalance = await fetchInitialBalance();
+        setInitialAccountBalance(initialBalance);
+        setUpdatedBalance(initialBalance);
+        setUpdatedRiskPct(0);
+        setUpdatedRiskVal(0);
       }
     }
 
-    fetchBalance();
+    // fetchBalance();
+    loadTrades();
   }, [])
 
 
@@ -47,14 +109,17 @@ function App() {
     liveBalance: updatedBalance,
     riskPctMax: 10,
     riskPct: 0,
-    liveRiskPct: 0
+    liveRiskPct: 0,
+    liveRiskVal: 0
   })
 
   useEffect(() => {
     setBalance(prev => ({
       ...prev,
       total: updatedBalance,
-      liveBalance: updatedBalance
+      liveBalance: updatedBalance,
+      liveRiskPct: updatedRiskPct,
+      liveRiskVal: updatedRiskVal
     }));
   }, [updatedBalance])
 
@@ -113,6 +178,7 @@ function App() {
         liveBalance: prevBalance.liveBalance - AmountSpent,
         liveRiskPct: prevBalance.liveRiskPct + AmountRisking,
         riskPct: prevBalance.riskPct + AmountRisking,
+        liveRiskVal: prevBalance.liveRiskVal + Number(data.loss)
       }))
     }
 
@@ -137,7 +203,8 @@ function App() {
       ticker: data.ticker,
       id: newId,
       contracts: parseInt(data.contracts, 10),
-      account_risk: balance.liveRiskPct,
+      account_risk: data.risk,
+      loss: data.loss,
       premium: data.premium,
       stop_loss_value: data.stopVal,
       stop_loss_pct: data.stopPct,
@@ -170,7 +237,8 @@ function App() {
       ...prevBalance,
       liveBalance: prevBalance.liveBalance + revenue,
       liveRiskPct: Math.max(0, prevBalance.liveRiskPct - Risk),
-      riskPct: Math.max(0, prevBalance.riskPct - Risk)
+      riskPct: Math.max(0, prevBalance.riskPct - Risk),
+      liveRiskVal: Math.max(0, prevBalance.liveRiskVal - tradeToClose.loss)
     }))
 
 
@@ -224,6 +292,7 @@ function App() {
       console.log("Cannot delete a trade that doesn't exist!");
       return;
     }
+
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
 
     deleteTrade(tradeId);
@@ -233,7 +302,8 @@ function App() {
       ...prevBalance,
       liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
       liveRiskPct: prevBalance.liveRiskPct - risk,
-      riskPct: prevBalance.riskPct - risk
+      riskPct: prevBalance.riskPct - risk,
+      liveRiskVal: prevBalance.liveRiskVal - tradeToClose.loss
     }))
   }
 
@@ -250,7 +320,7 @@ function App() {
     }))
   }
 
-  const updateLiveBalance = (original, updated, contracts, tradeId) => {
+  const updateLiveBalance = (original, updated, contracts, tradeId, BreakEven, TakeProfit, ClosePrice) => {
     // original is the original premium, updated is the live changed oneS
 
     if (original === null || original === "" || updated === null || updated === "" || contracts === "") {
@@ -266,6 +336,10 @@ function App() {
 
     let runningBalance = balance.total;
 
+    console.log("Starting balance: ", balance.total);
+    console.log("Starting cost: ", original * contracts * 100);
+    console.log("Updated cost: ", updated * contracts * 100);
+
     updatedTrades.forEach((trade, index) => {
       trade.baseline = runningBalance;
       const tradeCost = trade.premium * 100 * trade.contracts;
@@ -278,6 +352,24 @@ function App() {
       ...prev,
       liveBalance: runningBalance
     }));
+
+    console.log("Break even: ", BreakEven);
+    console.log("Take profit: ", TakeProfit);
+
+    // Update trade in supabase here
+    const updateData = {
+      id: tradeId,
+      premium: updated,
+      contracts: parseInt(contracts, 10),
+      close_price: Number(ClosePrice),
+      break_even: BreakEven,
+      take_one: TakeProfit,
+      take_two: TakeProfit,
+      take_three: TakeProfit,
+      take_four: TakeProfit
+    }
+
+    updateTrade(updateData);
 
     console.log("Balances recalculated successfully");
   }
