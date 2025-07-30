@@ -1,7 +1,8 @@
 import "./BalanceCard.css";
 
 function BalanceCard({ balance }) {
-    const riskVal = balance.liveRiskPct > 0 ? balance.total * (balance.liveRiskPct / 100) : 0;
+    const riskVal = balance.liveRiskVal;
+    // const riskVal = balance.liveRiskPct > 0 ? balance.total * (balance.liveRiskPct / 100) : 0;
     const riskPct = balance.liveRiskPct > 0 ? balance.liveRiskPct : 0;
 
     return (
