@@ -303,20 +303,28 @@ function App() {
       liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
       liveRiskPct: prevBalance.liveRiskPct - risk,
       riskPct: prevBalance.riskPct - risk,
-      liveRiskVal: prevBalance.liveRiskVal - tradeToClose.loss
+      liveRiskVal: prevBalance.liveRiskVal - tradeToClose.loss > 0 ? prevBalance.liveRiskVal - tradeToClose.loss : 0
     }))
   }
 
-  const setAccBalance = (riskPct) => {
-    if (balance.liveRiskPct === 0) {
+  const setAccBalance = (id) => {
+    const tradeForUpdate = createdTradeComponents.find(trade => trade.id === id);
+    if (!tradeForUpdate) {
+      console.log("Trade not found!");
+      return
+    }
+
+    if (balance.liveRiskPct === 0 && balance.liveRiskVal === 0) {
       return;
     }
 
-    const updatedRisk = balance.liveRiskPct - riskPct > 0 ? balance.liveRiskPct - riskPct : 0;
+    const updatedRisk = balance.liveRiskPct - tradeForUpdate.risk > 0 ? balance.liveRiskPct - tradeForUpdate.risk : 0;
+    const updatedRiskVal = balance.liveRiskVal - tradeForUpdate.loss > 0 ? balance.liveRiskVal - tradeForUpdate.loss : 0;
 
     setBalance(prev => ({
       ...prev,
-      liveRiskPct: updatedRisk
+      liveRiskPct: updatedRisk,
+      liveRiskVal: updatedRiskVal
     }))
   }
 
