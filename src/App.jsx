@@ -67,6 +67,7 @@ function App() {
             const trade = trades[i];
             const newComponent = {
               id: trade.trade_id,
+              type: trade.trade_type,
               contracts: trade.contracts,
               loss: trade.loss,
               budget: trade.trade_cost,
@@ -80,8 +81,10 @@ function App() {
             }
             tradeComponents.push(newComponent);
             totalBalanceUsed += Math.abs(trade.trade_cost);
-            totalRiskAmount += Math.abs(trade.account_risk);
-            totalRiskValAmount += Math.abs(trade.loss);
+            if (!trade.break_even && !trade.take_one && !trade.take_two && !trade.take_three && !trade.take_four) {
+              totalRiskAmount += Math.abs(trade.account_risk);
+              totalRiskValAmount += Math.abs(trade.loss);
+            }
           }
 
           setCreatedTradeComponents(tradeComponents);
@@ -184,6 +187,7 @@ function App() {
 
     const newComponent = {
       id: newId,
+      type: null,
       contracts: data.contracts,
       loss: data.loss,
       budget: data.budget,
@@ -201,6 +205,7 @@ function App() {
     // Add to persistence database
     const tradeData = {
       ticker: data.ticker,
+      type: null,
       id: newId,
       contracts: parseInt(data.contracts, 10),
       account_risk: data.risk,
@@ -318,7 +323,7 @@ function App() {
       return;
     }
 
-    const updatedRisk = balance.liveRiskPct - tradeForUpdate.risk > 0 ? balance.liveRiskPct - tradeForUpdate.risk : 0;
+    const updatedRisk = balance.liveRiskPct - Number(tradeForUpdate.risk) > 0 ? balance.liveRiskPct - Number(tradeForUpdate.risk) : 0;
     const updatedRiskVal = balance.liveRiskVal - tradeForUpdate.loss > 0 ? balance.liveRiskVal - tradeForUpdate.loss : 0;
 
     setBalance(prev => ({
@@ -328,7 +333,7 @@ function App() {
     }))
   }
 
-  const updateLiveBalance = (original, updated, contracts, tradeId, BreakEven, TakeProfit, ClosePrice) => {
+  const updateLiveBalance = (original, updated, contracts, tradeId, BreakEven, TakeProfit, ClosePrice, TradeType) => {
     // original is the original premium, updated is the live changed oneS
 
     if (original === null || original === "" || updated === null || updated === "" || contracts === "") {
@@ -341,6 +346,7 @@ function App() {
     const updatedTrades = [...createdTradeComponents];
     updatedTrades[tradeIndex].premium = updated;
     updatedTrades[tradeIndex].contracts = contracts;
+    updatedTrades[tradeIndex].type = TradeType;
 
     let runningBalance = balance.total;
 
@@ -367,6 +373,7 @@ function App() {
     // Update trade in supabase here
     const updateData = {
       id: tradeId,
+      type: TradeType,
       premium: updated,
       contracts: parseInt(contracts, 10),
       close_price: Number(ClosePrice),
@@ -398,6 +405,7 @@ function App() {
               <TradeHistoryRow
                 key={component.id}
                 id={component.id}
+                type={component.type}
                 ticker={component.ticker}
                 time={component.time}
                 premium={component.premium}

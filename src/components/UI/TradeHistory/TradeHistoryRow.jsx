@@ -3,7 +3,7 @@ import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
-function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete, updateBalance }) {
+function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete, updateBalance }) {
 
     if (contracts <= 0) {
         return;
@@ -11,7 +11,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
 
     const [ProfitLossVal, setProfitLossVal] = useState(0);
     const [ProfitLossPctVal, setProfitLossPctVal] = useState(0);
-    const [TradeTypeVal, setTradeTypeVale] = useState('');
+    const [TradeTypeVal, setTradeTypeVale] = useState(type);
     const [CloseValue, setCloseValue] = useState(0);
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
@@ -42,6 +42,7 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
 
     const TradeTypeChange = (e) => {
         setTradeTypeVale(e.target.value);
+        updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue, e.target.value);
     }
 
     const PLPctChange = (e) => {
@@ -50,12 +51,12 @@ function TradeHistoryRow({ id, ticker, time, premium, risk, stopPct, stopVal, co
 
     const PremiumChange = (e) => {
         setPremiumValue(e.target.value); // Changes PremiumVal on next render
-        updateBalance(OriginalPremium, e.target.value, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue);
+        updateBalance(OriginalPremium, e.target.value, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue, TradeType);
     }
 
     const ContractsChange = (e) => {
         setContractsValue(e.target.value); // Changes ContractsVal on next render
-        updateBalance(OriginalPremium, PremiumVal, e.target.value, id, BreakEvenHit, TakeProfit, CloseValue);
+        updateBalance(OriginalPremium, PremiumVal, e.target.value, id, BreakEvenHit, TakeProfit, CloseValue, TradeType);
     }
 
     const HandleRowClick = (data) => {
