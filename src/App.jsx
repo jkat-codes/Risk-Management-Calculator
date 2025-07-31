@@ -77,7 +77,8 @@ function App() {
               premium: trade.entry_price,
               risk: Math.abs(trade.account_risk),
               time: trade.created_at,
-              baseline: trade.account_balance
+              baseline: trade.account_balance,
+              close: trade.close_price
             }
             tradeComponents.push(newComponent);
             totalBalanceUsed += Math.abs(trade.trade_cost);
@@ -111,9 +112,9 @@ function App() {
     total: updatedBalance,
     liveBalance: updatedBalance,
     riskPctMax: 10,
-    riskPct: 0,
-    liveRiskPct: 0,
-    liveRiskVal: 0
+    riskPct: updatedRiskPct,
+    liveRiskPct: updatedRiskPct,
+    liveRiskVal: updatedRiskVal
   })
 
   useEffect(() => {
@@ -156,6 +157,8 @@ function App() {
 
     const AmountRisking = Number(data.loss) * 100 / balance.total;
 
+    console.log(AmountRisking);
+
     if (AmountRisking + balance.liveRiskPct > 10) {
       console.log("Maximum risk exceeded!");
       toast.error("Maximum risk exceeded!", {
@@ -197,7 +200,8 @@ function App() {
       premium: data.premium,
       risk: data.risk,
       time: formattedString,
-      baseline: balance.liveBalance
+      baseline: balance.liveBalance,
+      close: 0
     }
 
     setCreatedTradeComponents(prev => [newComponent, ...prev]);
@@ -350,6 +354,8 @@ function App() {
 
     let runningBalance = balance.total;
 
+    console.log(original, updated);
+
     console.log("Starting balance: ", balance.total);
     console.log("Starting cost: ", original * contracts * 100);
     console.log("Updated cost: ", updated * contracts * 100);
@@ -413,6 +419,7 @@ function App() {
                 stopPct={component.stopPct}
                 stopVal={component.stopVal}
                 contracts={component.contracts}
+                close={component.close}
                 onConfirm={handleConfirmTrade}
                 setAccBalance={setAccBalance}
                 onDelete={handleDeleteTrade}

@@ -3,16 +3,20 @@ import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import './TradeHistoryRow.css'
 import { toast } from "react-toastify";
-function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, onConfirm, setAccBalance, onDelete, updateBalance }) {
+function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, close, onConfirm, setAccBalance, onDelete, updateBalance }) {
 
     if (contracts <= 0) {
         return;
     }
 
+    if (type === "" || type === null) {
+        type = undefined;
+    }
+
     const [ProfitLossVal, setProfitLossVal] = useState(0);
     const [ProfitLossPctVal, setProfitLossPctVal] = useState(0);
     const [TradeTypeVal, setTradeTypeVale] = useState(type);
-    const [CloseValue, setCloseValue] = useState(0);
+    const [CloseValue, setCloseValue] = useState(close);
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
     const [PremiumValue, setPremiumValue] = useState(premium);
