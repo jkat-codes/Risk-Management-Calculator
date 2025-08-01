@@ -35,6 +35,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const ProfitLossPct = ProfitLossPctVal;
     const Close = CloseValue;
 
+    const Stop1 = (PremiumVal * (1 - 1 * (stopPct / 100))).toFixed(2);
     const Take1 = (PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2);
     const Take2 = (PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2);
     const Take3 = (PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2);
@@ -56,6 +57,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const PremiumChange = (e) => {
         setPremiumValue(e.target.value); // Changes PremiumVal on next render
         updateBalance(OriginalPremium, e.target.value, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue, TradeType);
+        setStopValue((e.target.value * (1 - 1 * (stopPct / 100))).toFixed(2));
     }
 
     const ContractsChange = (e) => {
