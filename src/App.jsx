@@ -368,10 +368,13 @@ function App() {
 
     setCreatedTradeComponents(updatedTrades);
 
-    setBalance(prev => ({
-      ...prev,
-      liveBalance: runningBalance
-    }));
+    if (!BreakEven && !TakeProfit) {
+      setBalance(prev => ({
+        ...prev,
+        liveBalance: runningBalance
+      }));
+    }
+
 
     console.log("Break even: ", BreakEven);
     console.log("Take profit: ", TakeProfit);
