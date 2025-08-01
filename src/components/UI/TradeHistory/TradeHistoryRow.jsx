@@ -31,6 +31,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const [Take2, setTake2] = useState(null);
     const [Take3, setTake3] = useState(null);
     const [Take4, setTake4] = useState(null);
+    const [rowStatus, setRowStatus] = useState('default');
 
     var value = ProfitLossVal;
     var PremiumVal = PremiumValue;
@@ -45,6 +46,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             const tradeData = activeTrade.data;
             if (!tradeData) {
                 // Trade not in database yet
+                setRowStatus('default');
                 setTake1((PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2));
                 setTake2((PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2));
                 setTake3((PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2));
@@ -57,7 +59,15 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
                     setTake2((PremiumVal * (1 + 2 * (originalStopLossPct / 100))).toFixed(2));
                     setTake3((PremiumVal * (1 + 3 * (originalStopLossPct / 100))).toFixed(2));
                     setTake4((PremiumVal * (1 + 4 * (originalStopLossPct / 100))).toFixed(2));
+                    if (tradeData.break_even) {
+                        // color yellow
+                        setRowStatus('breakeven');
+                    } else {
+                        // color green
+                        setRowStatus('profit');
+                    }
                 } else {
+                    setRowStatus('default');
                     setTake1((PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2));
                     setTake2((PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2));
                     setTake3((PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2));
@@ -101,6 +111,17 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
         updateBalance(OriginalPremium, PremiumVal, e.target.value, id, BreakEvenHit, TakeProfit, CloseValue, TradeType);
     }
 
+    const getRowClassName = () => {
+        switch (rowStatus) {
+            case 'breakeven':
+                return 'HistoryRowContainer breakeven';
+            case 'profit':
+                return 'HistoryRowContainer profit';
+            default:
+                return 'HistoryRowContainer';
+        }
+    };
+
     const HandleRowClick = (data) => {
         if (data.target) {
             var take = String(data.target.innerHTML);
@@ -122,18 +143,14 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
 
             if (take > stop && take !== PremiumVal) {
                 // Color the row green here
-                for (let i = 0; i < 16; i++) {
-                    rows[i].style.background = "#85b278";
-                }
+                setRowStatus('profit');
                 setTakeProfit(true);
                 setBreakEvenHit(false);
                 updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, true, takeString);
 
             } else if (take === PremiumVal) {
                 // Color the row here
-                for (let i = 0; i < 16; i++) {
-                    rows[i].style.background = "#FFEE8C";
-                }
+                setRowStatus('breakeven');
                 setBreakEvenHit(true);
                 setTakeProfit(false);
                 updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, true, false, takeString);
@@ -210,7 +227,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     }
 
     return (
-        <div className="HistoryRowContainer">
+        <div className={getRowClassName()}>
             <span className="ColumnLabel">{ticker}</span>
             <span className="ColumnLabel datetime">{time}</span>
             <span className="ColumnLabel">
