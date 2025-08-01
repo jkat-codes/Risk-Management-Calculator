@@ -72,3 +72,16 @@ export const fetchActiveTrades = async () => {
         return { error: error.message };
     }
 }
+
+export const fetchSingleTrade = async (id) => {
+    try {
+        const { data, error } = await supabase.rpc('fetch_original_premium', {
+            p_trade_id: id
+        })
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.log("Error fetching trade: ", error);
+        return { error: error.message };
+    }
+}
