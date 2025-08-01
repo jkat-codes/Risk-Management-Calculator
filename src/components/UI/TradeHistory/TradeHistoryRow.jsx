@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
+import { fetchSingleTrade } from "../../../hooks/database/persistence";
 import './TradeHistoryRow.css'
-import { toast } from "react-toastify";
 function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, close, onConfirm, setAccBalance, onDelete, updateBalance }) {
 
     if (contracts <= 0) {
@@ -27,6 +27,10 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const [ContractsValue, setContractsValue] = useState(contracts);
     const [TakeProfit, setTakeProfit] = useState(false);
     const [BreakEvenHit, setBreakEvenHit] = useState(false);
+    const [Take1, setTake1] = useState(null);
+    const [Take2, setTake2] = useState(null);
+    const [Take3, setTake3] = useState(null);
+    const [Take4, setTake4] = useState(null);
 
     var value = ProfitLossVal;
     var PremiumVal = PremiumValue;
@@ -35,11 +39,39 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const ProfitLossPct = ProfitLossPctVal;
     const Close = CloseValue;
 
-    const Stop1 = (PremiumVal * (1 - 1 * (stopPct / 100))).toFixed(2);
-    const Take1 = (PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2);
-    const Take2 = (PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2);
-    const Take3 = (PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2);
-    const Take4 = (PremiumVal * (1 + 4 * (stopPct / 100))).toFixed(2);
+    useEffect(() => {
+        const handleBreakEven = async () => {
+            const activeTrade = await fetchSingleTrade(id);
+            const tradeData = activeTrade.data;
+            if (!tradeData) {
+                // Trade not in database yet
+                setTake1((PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2));
+                setTake2((PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2));
+                setTake3((PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2));
+                setTake4((PremiumVal * (1 + 4 * (stopPct / 100))).toFixed(2));
+            } else {
+                // Check for break even or take profit here
+                if (tradeData.break_even || tradeData.take_one || tradeData.take_two || tradeData.take_three || tradeData.take_four) {
+                    const originalStopLossPct = tradeData.original_stop_loss_pct;
+                    setTake1((PremiumVal * (1 + 1 * (originalStopLossPct / 100))).toFixed(2));
+                    setTake2((PremiumVal * (1 + 2 * (originalStopLossPct / 100))).toFixed(2));
+                    setTake3((PremiumVal * (1 + 3 * (originalStopLossPct / 100))).toFixed(2));
+                    setTake4((PremiumVal * (1 + 4 * (originalStopLossPct / 100))).toFixed(2));
+                } else {
+                    setTake1((PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2));
+                    setTake2((PremiumVal * (1 + 2 * (stopPct / 100))).toFixed(2));
+                    setTake3((PremiumVal * (1 + 3 * (stopPct / 100))).toFixed(2));
+                    setTake4((PremiumVal * (1 + 4 * (stopPct / 100))).toFixed(2));
+                }
+            }
+            const pVal = ((close * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)).toFixed(2)
+            const pPct = (((((close * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)) / (PremiumVal * ContractsVal * 100)) * 100).toFixed(2));
+            setProfitLossVal(pVal > 0 ? pVal : 0);
+            setProfitLossPctVal(pPct > 0 ? pPct : 0);
+        }
+        handleBreakEven();
+    }, [])
+
 
     const PLValChange = (e) => {
         setProfitLossVal(e.target.value);
@@ -58,6 +90,10 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
         setPremiumValue(e.target.value); // Changes PremiumVal on next render
         updateBalance(OriginalPremium, e.target.value, ContractsVal, id, BreakEvenHit, TakeProfit, CloseValue, TradeType);
         setStopValue((e.target.value * (1 - 1 * (stopPct / 100))).toFixed(2));
+        setTake1((e.target.value * (1 + 1 * (stopPct / 100))).toFixed(2));
+        setTake2((e.target.value * (1 + 2 * (stopPct / 100))).toFixed(2));
+        setTake3((e.target.value * (1 + 3 * (stopPct / 100))).toFixed(2));
+        setTake4((e.target.value * (1 + 4 * (stopPct / 100))).toFixed(2));
     }
 
     const ContractsChange = (e) => {
@@ -68,7 +104,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const HandleRowClick = (data) => {
         if (data.target) {
             var take = String(data.target.innerHTML);
-            var stop = String(stopVal);
+            var stop = String(StopValue);
             take = take.substring(take.indexOf("$") + 1);
             stop = stop.substring(stop.indexOf("$") + 1);
             var takeString = take;
