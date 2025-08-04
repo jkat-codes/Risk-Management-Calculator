@@ -34,10 +34,20 @@
 
 .PositionField {
     display: flex;
+    justify-content: space-between;
     flex-direction: column;
     justify-content: start;
     padding: 5px;
     gap: 5px;
+}
+
+.ContractsContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    align-items: center;
 }
 
 .PositionField:nth-child(even) {

@@ -13,8 +13,30 @@ export function PositionConfirmationField({ header, content }) {
 
     return (
         <div className="PositionField">
-            <span className="PositionHeader">{header}</span>
+            <div className="ContractsContainer">
+                <span className="PositionHeader">{header}</span>
+            </div>
             <input id="PositionInput" type="number" onChange={ValueChange} value={value} />
+        </div>
+    )
+}
+
+export function ContractConfirmationField({ header, content }) {
+    const [ContractsValue, setContractsValue] = useState(content);
+    const contractsVal = ContractsValue;
+    const OriginalContracts = content;
+
+    const ContractsChange = (e) => {
+        setContractsValue(e.target.value);
+    }
+
+    return (
+        <div className="PositionField">
+            <div className="ContractsContainer">
+                <span className="PositionHeader">{header}</span>
+                <span className="PositionHeader">{`${OriginalContracts} → ${OriginalContracts - contractsVal != "" ? OriginalContracts - contractsVal : 0}`}</span>
+            </div>
+            <input id="PositionInput" type="number" onChange={ContractsChange} value={contractsVal} />
         </div>
     )
 }
@@ -27,7 +49,7 @@ export function ConfirmationModal({ headerContent, onClose, onConfirm, close, co
             <div className="ModalContent">
                 <Header content={headerContent}></Header>
                 <PositionConfirmationField header="EXIT PRICE*" content={close}></PositionConfirmationField>
-                <PositionConfirmationField header="CONTRACTS" content={contracts}></PositionConfirmationField>
+                <ContractConfirmationField header="CONTRACTS" content={contracts}></ContractConfirmationField>
                 <PositionConfirmationField header="P&L AMOUNT" content={plval}></PositionConfirmationField>
                 <PositionConfirmationField header="P&L PERCENT" content={plpct}></PositionConfirmationField>
                 <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
