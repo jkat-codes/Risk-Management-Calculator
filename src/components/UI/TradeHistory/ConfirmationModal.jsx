@@ -19,18 +19,19 @@ export function PositionConfirmationField({ header, content }) {
     )
 }
 
-export function ConfirmationModal({ onClose, onConfirm, close, contracts, plval, plpct }) {
+export function ConfirmationModal({ headerContent, onClose, onConfirm, close, contracts, plval, plpct }) {
+
 
     const modal = (
         <div className="ModalOverlay">
             <div className="ModalContent">
-                <Header content="Close Position"></Header>
+                <Header content={headerContent}></Header>
                 <PositionConfirmationField header="EXIT PRICE*" content={close}></PositionConfirmationField>
                 <PositionConfirmationField header="CONTRACTS" content={contracts}></PositionConfirmationField>
                 <PositionConfirmationField header="P&L AMOUNT" content={plval}></PositionConfirmationField>
                 <PositionConfirmationField header="P&L PERCENT" content={plpct}></PositionConfirmationField>
                 <button className="btn btn-cancel" onClick={onClose}>Cancel</button>
-                <button className="btn btn-confirm" onClick={onConfirm}>Close Position</button>
+                <button className="btn btn-confirm" onClick={onConfirm}>{headerContent === 'Peel Position' ? "Peel Position" : "Close Position"}</button>
             </div>
         </div>
     )

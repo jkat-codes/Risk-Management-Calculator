@@ -20,7 +20,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const [StopValue, setStopValue] = useState(stopVal);
     const [StopPercent, setStopPercent] = useState(stopPct);
     const [PremiumValue, setPremiumValue] = useState(premium);
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(null);
     const [breakEven, setBreakEven] = useState(false);
     const [OriginalPremium, setOriginalPremium] = useState(premium);
     const [OriginalContracts, setOriginalContracts] = useState(contracts);
@@ -169,8 +169,8 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
         }
     }
 
-    const handleOpenModal = () => setShowModal(true);
-    const handleCloseModal = () => setShowModal(false);
+    const handleOpenModal = (type) => setShowModal(type);
+    const handleCloseModal = () => setShowModal(null);
 
     const handleConfirmSuccess = (e) => {
         const parent = e.target.parentNode;
@@ -305,8 +305,12 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             </span>
             <span className="ColumnLabel">{Close && parseFloat(Close) > 0 ? Close : ''}</span>
             <span className="ColumnLabel clickable">
-                <button className="ConfirmBtn" onClick={handleOpenModal}>Close</button>
-                {showModal && <ConfirmationModal onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+                <button className="PeelBtn" onClick={() => handleOpenModal('peel')}>Peel</button>
+                {showModal === 'peel' && <ConfirmationModal headerContent="Peel Position" onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+            </span>
+            <span className="ColumnLabel clickable">
+                <button className="ConfirmBtn" onClick={() => handleOpenModal('close')}>Close</button>
+                {showModal === 'close' && <ConfirmationModal headerContent="Close Position" onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
             </span>
             <span className="ColumnLabel clickable">
                 <button className="DeleteBtn" onClick={handleDeleteTrade}>Delete</button>
