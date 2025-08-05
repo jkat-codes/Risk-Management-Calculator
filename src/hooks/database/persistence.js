@@ -25,6 +25,32 @@ export const addTrade = async (trade) => {
     }
 }
 
+export const addPeelTrade = async (trade) => {
+    try {
+        const {data, error} = await supabase.rpc('add_trade_peel', {
+            p_ticker: trade.ticker, 
+            p_trade_id: trade.id, 
+            p_trade_type: trade.type,
+            p_contracts: trade.contracts,
+            p_contracts_peeled: trade.contracts_peeled, 
+            p_account_risk: trade.account_risk,
+            p_loss: trade.loss,
+            p_entry_price: trade.premium,
+            p_stop_loss_value: trade.stop_loss_value,
+            p_stop_loss_pct: trade.stop_loss_pct,
+            p_account_balance: trade.account_balance,
+            p_trade_active: trade.trade_active
+        }); 
+
+        if (error) throw error; 
+        console.log(data); 
+        return data; 
+    } catch (error) {
+        console.log("Error adding peel trade: ", error); 
+        return {error: error.message}; 
+    }
+}
+
 export const deleteTrade = async (tradeId) => {
     try {
         const { data, error } = await supabase.rpc('delete_trade', {
@@ -36,6 +62,19 @@ export const deleteTrade = async (tradeId) => {
     } catch (error) {
         console.log("Error deleting trade: ", error);
         return { error: error.message };
+    }
+}
+
+export const deletePeelTrade = async (tradeId) => {
+    try {
+        const {data, error} = await supabase.rpc('delete_peel_trade', {
+            p_trade_id: tradeId
+        }); 
+        if (error) throw error; 
+        console.log(data); 
+    } catch (error) {
+        console.log("Error deleting peel trade: ", error); 
+        return {error: error.message}; 
     }
 }
 
