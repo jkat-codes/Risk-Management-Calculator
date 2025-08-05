@@ -14,7 +14,7 @@
       {
         "title": "Risk Calculator",
         "label": "main",
-        "minWidth": 1392,
+        "minWidth": 1468,
         "minHeight": 1000,
         "visible": true,
         "decorations": true,
