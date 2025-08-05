@@ -6,7 +6,7 @@ import Calculator from './components/UI/CalculatorComponent/Calculator';
 import TradeHistoryLabels from './components/UI/TradeHistory/TradeHistoryLabels';
 import TradeHistoryRow from './components/UI/TradeHistory/TradeHistoryRow';
 import Updater from './services/updater/updater';
-import { addTrade, deleteTrade, fetchActiveTrades, updateTrade } from './hooks/database/persistence';
+import { addTrade, deleteTrade, fetchActiveTrades, updateTrade, addPeelTrade, deletePeelTrade} from './hooks/database/persistence';
 import './App.css'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -221,7 +221,23 @@ function App() {
       trade_active: true
     }
 
+    const peelTradeData = {
+      ticker: data.ticker,
+      type: null,
+      id: newId,
+      contracts: parseInt(data.contracts, 10),
+      contracts_peeled: 0, 
+      account_risk: data.risk,
+      loss: data.loss,
+      premium: data.premium,
+      stop_loss_value: data.stopVal,
+      stop_loss_pct: data.stopPct,
+      account_balance: balance.liveBalance,
+      trade_active: true
+    }
+
     addTrade(tradeData);
+    addPeelTrade(peelTradeData); 
 
   }
 
@@ -305,6 +321,7 @@ function App() {
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId))
 
     deleteTrade(tradeId);
+    deletePeelTrade(tradeId); 
 
     // Need to reset balance here
     setBalance(prevBalance => ({
