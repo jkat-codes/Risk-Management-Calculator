@@ -5,7 +5,7 @@ export const addTrade = async (trade) => {
         const { data, error } = await supabase.rpc('add_trade', {
             p_ticker: trade.ticker,
             p_trade_id: trade.id,
-            p_trade_type: trade.type,
+            p_trade_type: trade.type || '',
             p_contracts: trade.contracts,
             p_account_risk: trade.account_risk,
             p_loss: trade.loss,
@@ -30,7 +30,7 @@ export const addPeelTrade = async (trade) => {
         const {data, error} = await supabase.rpc('add_trade_peel', {
             p_ticker: trade.ticker, 
             p_trade_id: trade.id, 
-            p_trade_type: trade.type,
+            p_trade_type: trade.type || '',
             p_contracts: trade.contracts,
             p_contracts_peeled: trade.contracts_peeled, 
             p_account_risk: trade.account_risk,
@@ -39,7 +39,7 @@ export const addPeelTrade = async (trade) => {
             p_stop_loss_value: trade.stop_loss_value,
             p_stop_loss_pct: trade.stop_loss_pct,
             p_account_balance: trade.account_balance,
-            p_trade_active: trade.trade_active
+            p_trade_active: trade.trade_active, 
         }); 
 
         if (error) throw error; 

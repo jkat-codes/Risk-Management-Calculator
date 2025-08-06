@@ -3,7 +3,7 @@ import { useState } from "react";
 import ConfirmationModal from "./ConfirmationModal";
 import { fetchSingleTrade } from "../../../hooks/database/persistence";
 import './TradeHistoryRow.css'
-function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, close, onConfirm, setAccBalance, onDelete, updateBalance }) {
+function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopVal, contracts, close, onConfirm, onConfirmPeel, setAccBalance, onDelete, updateBalance }) {
 
     if (contracts <= 0) {
         return;
@@ -222,6 +222,87 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
         setShowModal(false);
     }
 
+    const handleConfirmPeel = (e) => {
+        const parent = e.target.parentNode; 
+        const children = parent.childNodes; 
+        const price = Number(children[1].childNodes[1].value); 
+        const contracts_peeled = Number(children[2].childNodes[1].value); 
+        const contracts_original = ContractsVal; 
+        const contracts_remaining = contracts_original - contracts_peeled; 
+
+        console.log("Original: ", contracts_original); 
+        console.log("Peeled: ", contracts_peeled); 
+        console.log("Remaining: ", contracts_remaining);
+
+        if (price === "0" || price === 0) {
+            var EmptyPrice = children[1].childNodes[1];
+            EmptyPrice.style.border = "1px solid red";
+            EmptyPrice.animate([
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0px)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(0px)' },
+            ],
+                {
+                    duration: 500,
+                    easing: 'ease-out',
+                    iterations: 1,
+                    fill: 'forwards'
+                }
+            )
+            return;
+        }
+
+        if (contracts_peeled === "0" || contracts_peeled === 0) {
+            var EmptyContracts = children[2].childNodes[1];
+            EmptyContracts.style.border = "1px solid red";
+            EmptyContracts.animate([
+                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0px)' },
+                { transform: 'translateX(-5px)' },
+                { transform: 'translateX(0px)' },
+            ],
+                {
+                    duration: 500,
+                    easing: 'ease-out',
+                    iterations: 1,
+                    fill: 'forwards'
+                }
+            )
+            return;
+        }
+
+        const revenue = contracts_peeled * 100 * price;
+        const cost = contracts_peeled * 100 * PremiumVal;
+        const profit = revenue - cost;
+
+        console.log("Revenue: ", revenue); 
+        console.log("Cost: ", cost); 
+        console.log("Profit: ", profit); 
+
+        const peelData = {
+            cost: cost,
+            revenue: revenue,
+            profit: profit,
+            risk: risk,
+            stopPct: StopPercent,
+            stopVal: StopValue,
+            contracts_original: ContractsVal, 
+            contracts_peeled: contracts_peeled, 
+            time: time,
+            ticker: ticker,
+            premium: PremiumVal,
+            type: TradeType,
+            PLVal: value,
+            PLPct: ProfitLossPct,
+            closing_premium: Close
+        }
+
+        onConfirmPeel(id, peelData); 
+        setContractsValue(contracts_remaining); 
+        setShowModal(null); 
+    }
+
     const handleDeleteTrade = () => {
         onDelete(id, PremiumVal, ContractsVal, risk);
     }
@@ -306,11 +387,11 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             <span className="ColumnLabel">{Close && parseFloat(Close) > 0 ? Close : ''}</span>
             <span className="ColumnLabel clickable">
                 <button className="PeelBtn" onClick={() => handleOpenModal('peel')}>Peel</button>
-                {showModal === 'peel' && <ConfirmationModal headerContent="Peel Position" onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+                {showModal === 'peel' && <ConfirmationModal headerContent="Peel Position" onClose={handleCloseModal} onConfirm={handleConfirmPeel} close={Close} contracts={ContractsVal} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
             </span>
             <span className="ColumnLabel clickable">
                 <button className="ConfirmBtn" onClick={() => handleOpenModal('close')}>Close</button>
-                {showModal === 'close' && <ConfirmationModal headerContent="Close Position" onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={contracts} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
+                {showModal === 'close' && <ConfirmationModal headerContent="Close Position" onClose={handleCloseModal} onConfirm={handleConfirmSuccess} close={Close} contracts={ContractsVal} plval={value} plpct={ProfitLossPct}></ConfirmationModal>}
             </span>
             <span className="ColumnLabel clickable">
                 <button className="DeleteBtn" onClick={handleDeleteTrade}>Delete</button>

@@ -311,6 +311,66 @@ function App() {
     }
   }
 
+  const handleConfirmPeel = async(tradeId, peelData) => {
+    const tradePeeled = createdTradeComponents.find(trade => trade.id === tradeId); 
+    const {cost, revenue, profit, risk, stopPct, stopVal, contracts_original, contracts_peeled, time, premium, type, PLVal, PLPct, closing_premium} = peelData; 
+    var Risk = risk; 
+    // Update account balance
+    if (profit > 0) {
+      Risk = 0;
+    }
+
+    const newLiveBalance = balance.liveBalance + revenue;
+
+    setBalance(prevBalance => ({
+      ...prevBalance,
+      liveBalance: prevBalance.liveBalance + revenue,
+      liveRiskPct: Math.max(0, prevBalance.liveRiskPct - Risk),
+      riskPct: Math.max(0, prevBalance.riskPct - Risk),
+      liveRiskVal: Math.max(0, prevBalance.liveRiskVal - tradePeeled.loss)
+    }))
+
+    console.log(closing_premium); 
+    console.log(premium); 
+
+    // Update trade in persistence
+    const updateData = {
+      id: tradeId,
+      type: tradePeeled.type,
+      premium: premium,
+      contracts: Number(contracts_original) - contracts_peeled, 
+      close_price: Number(closing_premium),
+      break_even: premium === closing_premium ? true : false,
+      take_one: closing_premium > premium  ? true : false, 
+      take_two: closing_premium > premium ? true : false,
+      take_three: closing_premium > premium ? true : false,
+      take_four: closing_premium > premium ? true : false
+    }
+    updateTrade(updateData); 
+    // Add peel trade to peel database
+    const peelTradeData = {
+      ticker: tradePeeled.ticker,
+      type: tradePeeled.type,
+      id: tradeId,
+      contracts: Number(contracts_original) , 
+      contracts_peeled: contracts_peeled, 
+      account_risk: Risk,
+      loss: Number(tradePeeled.loss), 
+      premium: premium,
+      stop_loss_value: stopVal,
+      stop_loss_pct: stopPct,
+      account_balance: newLiveBalance, 
+      trade_active: true
+    }
+    addPeelTrade(peelTradeData); 
+
+    // If we peel all contracts we want to remove the trade from the log
+    if (Number(contracts_original) === contracts_peeled) {
+      setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId)); 
+    }
+  }
+
+
   const handleDeleteTrade = (tradeId, premium, contracts, risk) => {
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     if (!tradeToClose) {
@@ -441,6 +501,7 @@ function App() {
                 contracts={component.contracts}
                 close={component.close}
                 onConfirm={handleConfirmTrade}
+                onConfirmPeel={handleConfirmPeel}
                 setAccBalance={setAccBalance}
                 onDelete={handleDeleteTrade}
                 updateBalance={updateLiveBalance}

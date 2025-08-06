@@ -43,7 +43,6 @@ export function ContractConfirmationField({ header, content }) {
 
 export function ConfirmationModal({ headerContent, onClose, onConfirm, close, contracts, plval, plpct }) {
 
-
     const modal = (
         <div className="ModalOverlay">
             <div className="ModalContent">
