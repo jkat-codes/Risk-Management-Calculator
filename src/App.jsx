@@ -320,18 +320,15 @@ function App() {
       Risk = 0;
     }
 
+    console.log("Risk: ", risk); 
+    console.log("Profit: ", profit); 
+
     const newLiveBalance = balance.liveBalance + revenue;
 
     setBalance(prevBalance => ({
       ...prevBalance,
       liveBalance: prevBalance.liveBalance + revenue,
-      liveRiskPct: Math.max(0, prevBalance.liveRiskPct - Risk),
-      riskPct: Math.max(0, prevBalance.riskPct - Risk),
-      liveRiskVal: Math.max(0, prevBalance.liveRiskVal - tradePeeled.loss)
     }))
-
-    console.log(closing_premium); 
-    console.log(premium); 
 
     // Update trade in persistence
     const updateData = {
@@ -371,7 +368,7 @@ function App() {
   }
 
 
-  const handleDeleteTrade = (tradeId, premium, contracts, risk) => {
+  const handleDeleteTrade = (tradeId, premium, contracts, risk, closing_premium) => {
     const tradeToClose = createdTradeComponents.find(trade => trade.id === tradeId);
     if (!tradeToClose) {
       console.log("Cannot delete a trade that doesn't exist!");
@@ -384,13 +381,21 @@ function App() {
     deletePeelTrade(tradeId); 
 
     // Need to reset balance here
-    setBalance(prevBalance => ({
-      ...prevBalance,
-      liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
-      liveRiskPct: prevBalance.liveRiskPct - risk,
-      riskPct: prevBalance.riskPct - risk,
-      liveRiskVal: prevBalance.liveRiskVal - tradeToClose.loss > 0 ? prevBalance.liveRiskVal - tradeToClose.loss : 0
-    }))
+    if (closing_premium >= premium) {
+      // Only reset the $ amount, the risk has already been adjusted
+      setBalance(prevBalance => ({
+        ...prevBalance, 
+        liveBalance: prevBalance.liveBalance + (premium * contracts * 100)
+      }))
+    } else {
+      setBalance(prevBalance => ({
+        ...prevBalance,
+        liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
+        liveRiskPct: prevBalance.liveRiskPct - risk,
+        riskPct: prevBalance.riskPct - risk,
+        liveRiskVal: prevBalance.liveRiskVal - tradeToClose.loss > 0 ? prevBalance.liveRiskVal - tradeToClose.loss : 0
+      }))
+    }
   }
 
   const setAccBalance = (id) => {

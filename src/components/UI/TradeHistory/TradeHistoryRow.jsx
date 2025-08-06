@@ -38,7 +38,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     var ContractsVal = ContractsValue;
     const TradeType = TradeTypeVal;
     const ProfitLossPct = ProfitLossPctVal;
-    const Close = CloseValue;
+    var Close = CloseValue;
 
     useEffect(() => {
         const handleBreakEven = async () => {
@@ -304,7 +304,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     }
 
     const handleDeleteTrade = () => {
-        onDelete(id, PremiumVal, ContractsVal, risk);
+        onDelete(id, PremiumVal, ContractsVal, risk, Close);
     }
 
     return (
