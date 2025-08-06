@@ -272,8 +272,8 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             return;
         }
 
-        const revenue = contracts_peeled * 100 * price;
-        const cost = contracts_peeled * 100 * PremiumVal;
+        const revenue = contracts_peeled * 100 * price; // Uses the price from the modal
+        const cost = contracts_peeled * 100 * PremiumVal;  // Cost of the peeled contracts at purchase price
         const profit = revenue - cost;
 
         console.log("Revenue: ", revenue); 

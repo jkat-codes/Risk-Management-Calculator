@@ -320,14 +320,11 @@ function App() {
       Risk = 0;
     }
 
-    console.log("Risk: ", risk); 
-    console.log("Profit: ", profit); 
-
-    const newLiveBalance = balance.liveBalance + revenue;
+    const newLiveBalance = balance.liveBalance + Math.abs(cost); // You are making the cost back
 
     setBalance(prevBalance => ({
       ...prevBalance,
-      liveBalance: prevBalance.liveBalance + revenue,
+      liveBalance: newLiveBalance,
     }))
 
     // Update trade in persistence
@@ -388,6 +385,7 @@ function App() {
         liveBalance: prevBalance.liveBalance + (premium * contracts * 100)
       }))
     } else {
+      // No adjustments have been made, reset all aspects of acc balance
       setBalance(prevBalance => ({
         ...prevBalance,
         liveBalance: prevBalance.liveBalance + (premium * contracts * 100),
