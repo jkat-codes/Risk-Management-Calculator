@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import supabase from '../services/supabase-client';
-import Header from '../components/UI/Header';
+import {Header, ComplexHeader} from '../components/UI/Header';
 import SummaryCard from '../components/UI/AccountSummary/SummaryCard';
 import Calculator from '../components/UI/CalculatorComponent/Calculator';
 import TradeHistoryLabels from '../components/UI/TradeHistory/TradeHistoryLabels';
@@ -485,7 +485,7 @@ function Dashboard() {
       <div className="MainContainer" id="MainContainer">
         <Updater></Updater>
         <ToastContainer position="top-center" style={{ position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
-        <Header content="Personal Capital"></Header>
+        <ComplexHeader content="Personal Capital" page="dashboard"></ComplexHeader>
         <div className="MainContentContainer">
           <SummaryCard balance={balance}></SummaryCard>
           <Calculator balance={balance} onCardClick={handleCardClick}></Calculator>
