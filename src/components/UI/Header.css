@@ -22,3 +22,13 @@
     margin-right: auto;
     padding: 15px;
 }
+
+.HeaderContainer button {
+    padding: 15px; 
+    background: transparent; 
+    color: white; 
+    font-size: 30px;
+    font-weight: normal;
+    cursor: pointer; 
+    border: none;
+}

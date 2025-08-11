@@ -4,9 +4,19 @@
     box-sizing: border-box;
 }
 
-.SettingsContainer {
+.SettingsMainContainer {
     display: flex; 
+    flex-direction: column;
     width: 100%; 
     min-width: 1220px;
     margin-bottom: auto;
+}
+
+.SettingsContainer {
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: hidden; 
 }

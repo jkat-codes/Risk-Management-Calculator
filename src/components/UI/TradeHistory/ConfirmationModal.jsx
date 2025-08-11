@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import "./ConfirmationModal.css";
-import Header from "../Header";
+import {Header} from "../Header";
 
 export function PositionConfirmationField({ header, content }) {
     const [FieldValue, setFieldValue] = useState(content);

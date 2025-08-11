@@ -12,123 +12,12 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'; 
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 
 function Dashboard() {
-
-  const [updatedBalance, setUpdatedBalance] = useState(0);
-  const [updatedRiskPct, setUpdatedRiskPct] = useState(0);
-  const [updatedRiskVal, setUpdatedRiskVal] = useState(0);
-  const [createdTradeComponents, setCreatedTradeComponents] = useState([]);
-  const [initialAccountBalance, setInitialAccountBalance] = useState(0);
-
-  // Fetch latest balance from Supabase on mount
-  useEffect(() => {
-    const fetchInitialBalance = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('orders_placed')
-          .select('balance')
-          .order('placed_at', { ascending: false })
-          .limit(1)
-          .single();
-        if (error) {
-          console.log("Error fetching latest balance: ", error);
-        } else {
-          console.log(data.balance);
-          return data.balance;
-        }
-      } catch (err) {
-        console.log(err);
-        return 0;
-      }
-    };
-
-    async function loadTrades() {
-      const result = await fetchActiveTrades();
-      if (result.success) {
-        const trades = result.data;
-        if (trades.length === 0) {
-          // No active trades, fetch latest balance from last placed trade
-          const initialBalance = await fetchInitialBalance();
-          setInitialAccountBalance(initialBalance);
-          setUpdatedBalance(initialBalance);
-          setUpdatedRiskPct(0);
-          setUpdatedRiskVal(0);
-        } else {
-          // Active trades, compute total trade costs and subtract from latest placed trade(s) account balance
-          const tradeComponents = [];
-          let totalBalanceUsed = 0;
-          let accountBalance = 0;
-          let totalRiskAmount = 0;
-          let totalRiskValAmount = 0;
-
-          accountBalance = trades[trades.length - 1].account_balance; // gets earliest starting account balance and calculates from there
-          setInitialAccountBalance(accountBalance);
-
-          for (let i = 0; i < trades.length; i++) {
-            const trade = trades[i];
-            const newComponent = {
-              id: trade.trade_id,
-              type: trade.trade_type,
-              contracts: trade.contracts,
-              loss: trade.loss,
-              budget: trade.trade_cost,
-              stopVal: trade.stop_loss_value,
-              stopPct: trade.stop_loss_pct,
-              ticker: trade.ticker,
-              premium: trade.entry_price,
-              risk: Math.abs(trade.account_risk),
-              time: trade.created_at,
-              baseline: trade.account_balance,
-              close: trade.close_price
-            }
-            tradeComponents.push(newComponent);
-            totalBalanceUsed += Math.abs(trade.trade_cost);
-            if (!trade.break_even && !trade.take_one && !trade.take_two && !trade.take_three && !trade.take_four) {
-              totalRiskAmount += Math.abs(trade.account_risk);
-              totalRiskValAmount += Math.abs(trade.loss);
-            }
-          }
-
-          setCreatedTradeComponents(tradeComponents);
-          setUpdatedBalance(accountBalance - totalBalanceUsed);
-          setUpdatedRiskPct(totalRiskAmount);
-          setUpdatedRiskVal(totalRiskValAmount);
-        }
-      } else {
-        console.log(result.error);
-        const initialBalance = await fetchInitialBalance();
-        setInitialAccountBalance(initialBalance);
-        setUpdatedBalance(initialBalance);
-        setUpdatedRiskPct(0);
-        setUpdatedRiskVal(0);
-      }
-    }
-
-    // fetchBalance();
-    loadTrades();
-  }, [])
-
-
-  const [balance, setBalance] = useState({
-    total: updatedBalance,
-    liveBalance: updatedBalance,
-    riskPctMax: 10,
-    riskPct: updatedRiskPct,
-    liveRiskPct: updatedRiskPct,
-    liveRiskVal: updatedRiskVal
-  })
-
-  useEffect(() => {
-    setBalance(prev => ({
-      ...prev,
-      total: updatedBalance,
-      liveBalance: updatedBalance,
-      liveRiskPct: updatedRiskPct,
-      liveRiskVal: updatedRiskVal
-    }));
-  }, [updatedBalance])
-
+  const {
+    balance, setBalance, createdTradeComponents, setCreatedTradeComponents, initalAccountBalance
+  } = useApp(); 
 
   const handleCardClick = (data) => {
 

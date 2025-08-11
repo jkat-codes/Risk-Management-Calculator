@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import clsx from 'clsx';
+import { useApp } from '../../../context/AppContext'; 
 
 export function StatRow({ stats, header, content, onClick }) {
     return (
@@ -73,7 +74,9 @@ export function Statistic({ title, value }) {
 }
 
 
-function Calculator({ balance, onCardClick }) {
+function Calculator({onCardClick }) {
+
+    const {balance} = useApp(); 
 
     const totalBalance = balance.total;
 

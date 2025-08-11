@@ -1,0 +1,43 @@
+*, ::after, ::before {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+}
+
+.UpdateCardContainer {
+    background: #f3f3f3; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 25px; 
+    padding: 50px; 
+}
+
+.UpdateCardContainer button {
+    margin-left: auto;
+    margin-top: 5px;
+}
+
+.PositionFieldUpdate {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    justify-content: start;
+    padding: 5px;
+    gap: 5px;
+}
+
+.PositionHeaderUpdate {
+    font-size: 16px;
+}
+
+.PositionFieldUpdate input {
+    border: none;
+    background-color: #ffffff;
+    min-height: 30px;
+    min-width: 221px;
+    border: 1px solid rgba(0, 0, 0, 0.55);
+    padding: 5px;
+    font-size: 14px;
+}
