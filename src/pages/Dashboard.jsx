@@ -341,16 +341,17 @@ function Dashboard() {
     setCreatedTradeComponents(updatedTrades);
 
     if (!BreakEven && !TakeProfit) {
+      // Both false
       setBalance(prev => ({
         ...prev,
         liveBalance: runningBalance
       }));
     } else if (BreakEven || TakeProfit) {
+      // Either break even or take profit
       const updatedRisk = balance.liveRiskPct - Number(tradeForUpdate.risk) > 0 ? balance.liveRiskPct - Number(tradeForUpdate.risk) : 0;
       const updatedRiskVal = balance.liveRiskVal - tradeForUpdate.loss > 0 ? balance.liveRiskVal - tradeForUpdate.loss : 0;
       setBalance(prev => ({
         ...prev, 
-        liveBalance: runningBalance, 
         liveRiskPct: updatedRisk,
         liveRiskVal: updatedRiskVal
       }))
