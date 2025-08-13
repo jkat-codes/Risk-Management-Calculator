@@ -93,6 +93,16 @@ export function AppProvider({ children }) {
 
           for (let i = 0; i < trades.length; i++) {
             const trade = trades[i];
+            const date = new Date(trade.created_at); 
+            const time = date.toLocaleString('en-US', {
+              year: '2-digit', 
+              month: '2-digit', 
+              day: '2-digit', 
+              hour: '2-digit', 
+              minute: '2-digit', 
+              second: '2-digit', 
+              hour12: true
+            }); 
             const newComponent = {
               id: trade.trade_id,
               type: trade.trade_type,
@@ -104,7 +114,7 @@ export function AppProvider({ children }) {
               ticker: trade.ticker,
               premium: trade.entry_price,
               risk: Math.abs(trade.account_risk),
-              time: trade.created_at,
+              time: time,
               baseline: trade.account_balance,
               close: trade.close_price
             }
