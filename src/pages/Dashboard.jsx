@@ -211,7 +211,7 @@ function Dashboard() {
       Risk = 0;
     }
 
-    const newLiveBalance = balance.liveBalance + Math.abs(cost); // You are making the cost back
+    const newLiveBalance = balance.liveBalance + Math.abs(Number(revenue)); // You are making the cost back
 
     setBalance(prevBalance => ({
       ...prevBalance,
