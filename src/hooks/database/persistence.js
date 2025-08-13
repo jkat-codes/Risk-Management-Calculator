@@ -83,14 +83,14 @@ export const updateTrade = async (update) => {
         const { data, error } = await supabase.rpc('update_trade', {
             p_trade_id: update.id,
             p_entry_price: update.premium,
-            p_trade_type: update.type,
+            p_trade_type: update.type || '',
             p_contracts: update.contracts,
             p_close_price: update.close_price,
             p_break_even: update.break_even,
             p_take_one: update.take_one,
             p_take_two: update.take_two,
             p_take_three: update.take_three,
-            p_take_four: update.take_four
+            p_take_four: update.take_four, 
         })
 
         if (error) throw error;

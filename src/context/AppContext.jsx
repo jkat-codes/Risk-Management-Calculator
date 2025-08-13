@@ -13,6 +13,7 @@ export function AppProvider({ children }) {
 
   const fetchLatestManualBalance = async () => {
     try {
+      console.log("Fetching manual balance..."); 
       const { data, error } = await supabase
         .from('balance_updates')
         .select('balance, total, risk_pct_max, updated_at')
@@ -39,16 +40,16 @@ export function AppProvider({ children }) {
       try {
         const { data, error } = await supabase
           .from('orders_placed')
-          .select('balance')
+          .select('placed_at, balance')
           .order('placed_at', { ascending: false })
           .limit(1)
           .single();
+
         if (error) {
           console.log("Error fetching latest balance: ", error);
         } else {
           console.log("Fetching account balance from latest trade..."); 
-          console.log(data.balance);
-          return data.balance;
+          return data;
         }
       } catch (err) {
         console.log(err);
@@ -59,22 +60,28 @@ export function AppProvider({ children }) {
     async function loadTrades() {
       const result = await fetchActiveTrades();
       const manualBalance = await fetchLatestManualBalance(); 
+      const latestOrder = await fetchInitialBalance(); 
       if (result.success) {
         const trades = result.data;
         if (trades.length === 0) {
-          if (manualBalance) {
-            setInitialAccountBalance(manualBalance.balance); 
-            setUpdatedBalance(manualBalance.balance); 
+          // There are no active trades
+          let baseBalance = 0; 
+          if (manualBalance && latestOrder) {
+            console.log("Manual: ", manualBalance.updated_at); 
+            console.log("Latest: ", latestOrder.placed_at); 
+            baseBalance = new Date(manualBalance.updated_at) > new Date(latestOrder.placed_at) ? manualBalance.balance : latestOrder.balance
+          }
+
+          setInitialAccountBalance(baseBalance); 
+          setUpdatedBalance(baseBalance); 
+        
+          if (baseBalance) {
             setBalance(prev => ({
               ...prev, 
-              total: manualBalance.total, 
-              liveBalance: manualBalance.balance, 
+              total: baseBalance, 
+              liveBalance: baseBalance, 
               riskPctMax: manualBalance.risk_pct_max
             })); 
-          } else {
-            const initialBalance = await fetchInitialBalance();
-            setInitialAccountBalance(initialBalance);
-            setUpdatedBalance(initialBalance);
           }
           // No active trades, fetch latest balance from last placed trade
           setUpdatedRiskPct(0);
@@ -86,10 +93,8 @@ export function AppProvider({ children }) {
           let accountBalance = 0;
           let totalRiskAmount = 0;
           let totalRiskValAmount = 0;
-
-          accountBalance = trades[trades.length - 1].account_balance; // gets earliest starting account balance and calculates from there
+          accountBalance = new Date(manualBalance.updated_at) > new Date(latestOrder.placed_at) ? manualBalance.balance : latestOrder.balance
           setInitialAccountBalance(accountBalance);
-          const originalAccountBalance = accountBalance; 
 
           for (let i = 0; i < trades.length; i++) {
             const trade = trades[i];
@@ -126,14 +131,17 @@ export function AppProvider({ children }) {
             }
           }
 
-          let calculatedBalance = accountBalance - totalBalanceUsed; 
-          if (manualBalance) {
-            calculatedBalance = accountBalance - totalBalanceUsed + manualBalance.balance; 
+          let calculatedBalance; 
+          if (accountBalance) {
+            calculatedBalance = accountBalance - totalBalanceUsed; 
+            setInitialAccountBalance(calculatedBalance); 
 
             setBalance(prev => ({
               ...prev, 
               riskPctMax: manualBalance.risk_pct_max
             })); 
+          } else {
+            calculatedBalance = accountBalance - totalBalanceUsed; 
           }
 
           console.log("Total balance used: ", totalBalanceUsed); 

@@ -157,7 +157,6 @@ function Dashboard() {
       liveRiskVal: Math.max(0, prevBalance.liveRiskVal - tradeToClose.loss)
     }))
 
-
     setCreatedTradeComponents(prev => prev.filter(trade => trade.id !== tradeId));
 
     const cryptoID = crypto.randomUUID();
@@ -178,6 +177,8 @@ function Dashboard() {
         contracts: contracts,
         ticker: ticker
       })
+
+    deleteTrade(tradeId); 
 
     if (error) {
       console.log("Error adding trade to database: ", error);
@@ -229,7 +230,8 @@ function Dashboard() {
       take_one: closing_premium > premium  ? true : false, 
       take_two: closing_premium > premium ? true : false,
       take_three: closing_premium > premium ? true : false,
-      take_four: closing_premium > premium ? true : false
+      take_four: closing_premium > premium ? true : false, 
+      trade_active: true
     }
     updateTrade(updateData); 
     // Add peel trade to peel database
@@ -245,7 +247,6 @@ function Dashboard() {
       stop_loss_value: stopVal,
       stop_loss_pct: stopPct,
       account_balance: newLiveBalance, 
-      trade_active: true
     }
     addPeelTrade(peelTradeData); 
 
@@ -372,7 +373,7 @@ function Dashboard() {
       take_one: TakeProfit,
       take_two: TakeProfit,
       take_three: TakeProfit,
-      take_four: TakeProfit
+      take_four: TakeProfit, 
     }
 
     updateTrade(updateData);
