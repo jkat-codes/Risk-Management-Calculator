@@ -173,6 +173,8 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const handleCloseModal = () => setShowModal(null);
 
     const handleConfirmSuccess = (e) => {
+        // If a break even or profit take is not clicked, but price is modified to profit, need to decrease risk pct
+
         const parent = e.target.parentNode;
         const children = parent.childNodes;
         const price = Number(children[1].childNodes[1].value);
@@ -196,6 +198,20 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             return;
         }
 
+        if (!BreakEvenHit && !TakeProfit) {
+            // Neither break even or take profit has been clicked
+            if (price > PremiumVal) {
+                // Take Profit
+                setTakeProfit(true); 
+                setBreakEvenHit(false); 
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, true, String(price));
+            } else if (price === PremiumVal) {
+                setBreakEvenHit(true); 
+                setTakeProfit(false); 
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, true, false, String(price));
+            }
+        }
+
         const revenue = ContractsVal * 100 * price;
         const cost = ContractsVal * 100 * PremiumVal;
         const profit = revenue - cost;
@@ -217,7 +233,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             closing_premium: Close
         }
 
-        onConfirm(id, closeData)
+        onConfirm(id, closeData); 
 
         setShowModal(false);
     }

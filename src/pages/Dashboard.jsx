@@ -316,6 +316,7 @@ function Dashboard() {
     }
 
     const tradeIndex = createdTradeComponents.findIndex(trade => trade.id === tradeId);
+    const tradeForUpdate = createdTradeComponents.find(trade => trade.id === tradeId); 
     if (tradeIndex === -1) return; // trade not found
 
     const updatedTrades = [...createdTradeComponents];
@@ -344,6 +345,15 @@ function Dashboard() {
         ...prev,
         liveBalance: runningBalance
       }));
+    } else if (BreakEven || TakeProfit) {
+      const updatedRisk = balance.liveRiskPct - Number(tradeForUpdate.risk) > 0 ? balance.liveRiskPct - Number(tradeForUpdate.risk) : 0;
+      const updatedRiskVal = balance.liveRiskVal - tradeForUpdate.loss > 0 ? balance.liveRiskVal - tradeForUpdate.loss : 0;
+      setBalance(prev => ({
+        ...prev, 
+        liveBalance: runningBalance, 
+        liveRiskPct: updatedRisk,
+        liveRiskVal: updatedRiskVal
+      }))
     }
 
 
