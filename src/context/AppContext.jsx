@@ -123,6 +123,8 @@ export function AppProvider({ children }) {
               baseline: trade.account_balance,
               close: trade.close_price
             }
+            console.log(trade.trade_cost); 
+
             tradeComponents.push(newComponent);
             totalBalanceUsed += Math.abs(trade.trade_cost);
             if (!trade.break_even && !trade.take_one && !trade.take_two && !trade.take_three && !trade.take_four) {

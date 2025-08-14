@@ -103,6 +103,7 @@ function Dashboard() {
       type: null,
       id: newId,
       contracts: parseInt(data.contracts, 10),
+      trade_cost: parseInt(data.contracts, 10) * data.premium * 100, 
       account_risk: data.risk,
       loss: data.loss,
       premium: data.premium,
@@ -212,6 +213,10 @@ function Dashboard() {
       Risk = 0;
     }
 
+    const OriginalCost = premium * contracts_original * 100; 
+    const PeelCost = closing_premium * contracts_peeled * 100; 
+    const UpdatedTradeCost = OriginalCost - PeelCost; 
+
     const newLiveBalance = balance.liveBalance + Math.abs(Number(revenue)); // You are making the cost back
 
     setBalance(prevBalance => ({
@@ -225,6 +230,7 @@ function Dashboard() {
       type: tradePeeled.type,
       premium: premium,
       contracts: Number(contracts_original) - contracts_peeled, 
+      trade_cost: UpdatedTradeCost, 
       close_price: Number(closing_premium),
       break_even: premium === closing_premium ? true : false,
       take_one: closing_premium > premium  ? true : false, 
@@ -240,13 +246,14 @@ function Dashboard() {
       type: tradePeeled.type,
       id: tradeId,
       contracts: Number(contracts_original) , 
-      contracts_peeled: contracts_peeled, 
+      contracts_peeled: Number(contracts_peeled),  
       account_risk: Risk,
       loss: Number(tradePeeled.loss), 
       premium: premium,
       stop_loss_value: stopVal,
       stop_loss_pct: stopPct,
       account_balance: newLiveBalance, 
+      trade_active: true
     }
     addPeelTrade(peelTradeData); 
 
