@@ -217,7 +217,7 @@ function Dashboard() {
     const PeelCost = closing_premium * contracts_peeled * 100; 
     const UpdatedTradeCost = OriginalCost - PeelCost; 
 
-    const newLiveBalance = balance.liveBalance + Math.abs(Number(revenue)); // You are making the cost back
+    const newLiveBalance = balance.liveBalance + Math.abs(Number(revenue));
 
     setBalance(prevBalance => ({
       ...prevBalance,
@@ -377,10 +377,10 @@ function Dashboard() {
       contracts: parseInt(contracts, 10),
       close_price: Number(ClosePrice),
       break_even: BreakEven,
-      take_one: TakeProfit,
-      take_two: TakeProfit,
-      take_three: TakeProfit,
-      take_four: TakeProfit, 
+      take_one: TakeProfit === "Take1" ? true : false,
+      take_two: TakeProfit === "Take2" ? true: false,
+      take_three: TakeProfit === "Take3" ? true : false,
+      take_four: TakeProfit === "Take4" ? true : false, 
     }
 
     updateTrade(updateData);

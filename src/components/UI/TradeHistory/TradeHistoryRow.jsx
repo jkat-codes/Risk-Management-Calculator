@@ -67,6 +67,12 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
                         // color green
                         setRowStatus('profit');
                     }
+
+                    if ([tradeData.break_even, tradeData.take_one, tradeData.take_two, tradeData.take_three, tradeData.take_four].indexOf(true) > -1) {
+                        const index = [tradeData.break_even, tradeData.take_one, tradeData.take_two, tradeData.take_three, tradeData.take_four].indexOf(true); 
+                        HandleColorSpecificTake(index); 
+                    }
+
                 } else {
                     setRowStatus('default');
                     setTake1((PremiumVal * (1 + 1 * (stopPct / 100))).toFixed(2));
@@ -123,6 +129,37 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
         }
     };
 
+    const HandleColorSpecificTake = (index) => {
+        // Remove previously clicked profit take styling
+        const SelectedAlready = document.getElementsByClassName("selected"); 
+        if (SelectedAlready.length >= 1) {
+            for (let i = 0; i < SelectedAlready.length; i++) {
+                SelectedAlready[i].classList.remove("selected"); 
+            }
+        }
+
+        // Color the correct take
+        const TakeSpans = document.getElementsByClassName("take"); 
+        if (TakeSpans) {
+            switch (index) {
+                case 1: 
+                    TakeSpans[0].classList.add("selected"); 
+                    return; 
+                case 2: 
+                    TakeSpans[1].classList.add("selected"); 
+                    return; 
+                case 3: 
+                    TakeSpans[2].classList.add("selected"); 
+                    return; 
+                case 4: 
+                    TakeSpans[3].classList.add("selected"); 
+                    return; 
+                default: 
+                    return; 
+            }
+        }
+    }
+
     const HandleRowClick = (data) => {
         if (data.target) {
             var take = String(data.target.innerHTML);
@@ -140,12 +177,40 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             const parent = data.target.parentNode;
             const rows = parent.childNodes;
 
+            // Remove previously clicked profit take styling
+            const SelectedAlready = document.getElementsByClassName("selected"); 
+            if (SelectedAlready.length >= 1) {
+                for (let i = 0; i < SelectedAlready.length; i++) {
+                    SelectedAlready[i].classList.remove("selected"); 
+                }
+            }
+
+            let currentTakeChosen = null; 
+            // Color individually selected profit take
+            if (Number(take) === Number(Take1)) {
+                data.target.classList.add("selected"); 
+                currentTakeChosen = "Take1"; 
+                setTakeChosen("Take1"); 
+            } else if (Number(take) === Number(Take2)) {
+                data.target.classList.add("selected"); 
+                currentTakeChosen = "Take2"; 
+                setTakeChosen("Take2"); 
+            } else if (Number(take) === Number(Take3)) {
+                data.target.classList.add("selected"); 
+                currentTakeChosen = "Take3"; 
+                setTakeChosen("Take3"); 
+            } else if (Number(take) === Number(Take4)) {
+                data.target.classList.add("selected"); 
+                currentTakeChosen = "Take4"; 
+                setTakeChosen("Take4"); 
+            }
+
             if (take > stop && take !== PremiumVal) {
                 // Color the row green here
                 setRowStatus('profit');
                 setTakeProfit(true);
                 setBreakEvenHit(false);
-                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, true, takeString);
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, currentTakeChosen, takeString);
 
             } else if (take === PremiumVal) {
                 // Color the row here
@@ -155,28 +220,6 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
                 updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, true, false, takeString);
             }
 
-            // Remove previously clicked profit take styling
-            const SelectedAlready = document.getElementsByClassName("selected"); 
-            if (SelectedAlready.length >= 1) {
-                for (let i = 0; i < SelectedAlready.length; i++) {
-                    SelectedAlready[i].classList.remove("selected"); 
-                }
-            }
-
-            // Color individually selected profit take
-            if (Number(take) === Number(Take1)) {
-                data.target.classList.add("selected"); 
-                setTakeChosen(Take1); 
-            } else if (Number(take) === Number(Take2)) {
-                data.target.classList.add("selected"); 
-                setTakeChosen(Take2); 
-            } else if (Number(take) === Number(Take3)) {
-                data.target.classList.add("selected"); 
-                setTakeChosen(Take3); 
-            } else if (Number(take) === Number(Take4)) {
-                data.target.classList.add("selected"); 
-                setTakeChosen(Take4); 
-            }
 
             // Reset Stop Value and Stop Percent (break even)
             setStopValue(PremiumVal);
@@ -226,7 +269,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
                 // Take Profit
                 setTakeProfit(true); 
                 setBreakEvenHit(false); 
-                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, true, String(price));
+                updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, false, TakeChosen, String(price));
             } else if (price === PremiumVal) {
                 setBreakEvenHit(true); 
                 setTakeProfit(false); 
@@ -392,10 +435,10 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             <span className="ColumnLabel" onClick={HandleRowClick}>${StopValue}</span>
             <span className="ColumnLabel">{StopPercent}%</span>
             <span className="ColumnLabel clickable" onClick={HandleRowClick}>${PremiumVal}</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take1}</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take2}</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take3}</span>
-            <span className="ColumnLabel clickable" onClick={HandleRowClick}>${Take4}</span>
+            <span className="ColumnLabel clickable take" onClick={HandleRowClick}>${Take1}</span>
+            <span className="ColumnLabel clickable take" onClick={HandleRowClick}>${Take2}</span>
+            <span className="ColumnLabel clickable take" onClick={HandleRowClick}>${Take3}</span>
+            <span className="ColumnLabel clickable take" onClick={HandleRowClick}>${Take4}</span>
             <span className="ColumnLabel">
                 <input id="ProfitLossVal" type='number' onChange={PLValChange} value={value} style={{
                     width: '100%',

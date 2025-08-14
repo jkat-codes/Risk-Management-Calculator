@@ -175,7 +175,6 @@ export function AppProvider({ children }) {
       }
     }
 
-    // fetchBalance();
     loadTrades();
   }, [])
 
