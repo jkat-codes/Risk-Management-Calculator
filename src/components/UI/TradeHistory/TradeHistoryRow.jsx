@@ -31,6 +31,7 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
     const [Take2, setTake2] = useState(null);
     const [Take3, setTake3] = useState(null);
     const [Take4, setTake4] = useState(null);
+    const[TakeChosen, setTakeChosen] = useState(null); 
     const [rowStatus, setRowStatus] = useState('default');
 
     var value = ProfitLossVal;
@@ -132,8 +133,6 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
             take = Number(take);
             stop = Number(stop);
 
-            console.log("Take", take);
-
             setProfitLossVal(((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)).toFixed(2));
             setProfitLossPctVal(((((take * ContractsVal * 100) - (PremiumVal * ContractsVal * 100)) / (PremiumVal * ContractsVal * 100)) * 100).toFixed(2));
 
@@ -154,6 +153,29 @@ function TradeHistoryRow({ id, ticker, time, type, premium, risk, stopPct, stopV
                 setBreakEvenHit(true);
                 setTakeProfit(false);
                 updateBalance(OriginalPremium, PremiumVal, ContractsVal, id, true, false, takeString);
+            }
+
+            // Remove previously clicked profit take styling
+            const SelectedAlready = document.getElementsByClassName("selected"); 
+            if (SelectedAlready.length >= 1) {
+                for (let i = 0; i < SelectedAlready.length; i++) {
+                    SelectedAlready[i].classList.remove("selected"); 
+                }
+            }
+
+            // Color individually selected profit take
+            if (Number(take) === Number(Take1)) {
+                data.target.classList.add("selected"); 
+                setTakeChosen(Take1); 
+            } else if (Number(take) === Number(Take2)) {
+                data.target.classList.add("selected"); 
+                setTakeChosen(Take2); 
+            } else if (Number(take) === Number(Take3)) {
+                data.target.classList.add("selected"); 
+                setTakeChosen(Take3); 
+            } else if (Number(take) === Number(Take4)) {
+                data.target.classList.add("selected"); 
+                setTakeChosen(Take4); 
             }
 
             // Reset Stop Value and Stop Percent (break even)

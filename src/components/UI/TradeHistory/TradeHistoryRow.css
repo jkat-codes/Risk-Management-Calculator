@@ -79,6 +79,10 @@
     background-color: #85b278;
 }
 
+.ColumnLabel.selected {
+    background-color: #549443;
+}
+
 @media screen and (min-width: 1220px) {
 
     .ColumnLabel,
