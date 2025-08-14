@@ -5,6 +5,7 @@ import { useApp } from "../context/AppContext";
 import SummaryCard from "../components/UI/AccountSummary/SummaryCard";
 import BalanceBanner from "../components/UI/AccountSummary/BalanceBanner";
 import UpdateCard from "../components/UI/AccountSummary/UpdateBalance";
+import { ToastContainer } from "react-toastify";
 import "./Settings.css"; 
 
 function Settings() {
@@ -15,6 +16,7 @@ function Settings() {
 
     return (
         <div className="SettingsMainContainer">
+            <ToastContainer position="top-center" style={{ position: "absolute", top: "-80px", right: "10px" }}></ToastContainer>
             <ComplexHeader content="Account Settings" page="settings"></ComplexHeader>
             <div className="SettingsContainer">
                 <BalanceBanner balance={`$${liveBalance.toFixed(2)}`} risk={`${liveRisk}%`}></BalanceBanner>

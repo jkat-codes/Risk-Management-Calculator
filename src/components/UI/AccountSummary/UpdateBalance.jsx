@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import './UpdateBalance.css'; 
 import { useApp } from "../../../context/AppContext";
-import supabase from "../../../services/supabase-client";
+import supabase from "../../../services/supabase-client"; 
+import { toast, ToastContainer } from 'react-toastify';
 
 function UpdateCard() {
 
@@ -92,10 +93,24 @@ function UpdateCard() {
                 throw error; 
             } else {
                 console.log("Balance update saved successfully"); 
+                toast.success('Account balance updated successfully!', {
+                    position: 'top-right',
+                    style: {
+                    position: "absolute",
+                    top: "100px",
+                    right: "20px"
+                    }
+                })
             }
 
         } catch (error) {
             console.log("Error saving balance update: ", error); 
+            toast.error("Error updating account balance!", {
+                position: 'top-right',
+                style: {
+                color: "#ff6b6b"
+                }
+            })
         }
 
 
