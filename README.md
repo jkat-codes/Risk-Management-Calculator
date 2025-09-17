@@ -18,6 +18,7 @@ A desktop application for options traders built with React and Tauri. Designed t
 
 ## Trade Management
 
+- **Position Sizing**: Van Tharp's Method Used—Risking a specified percentage of portfolio on each trade, prevents losing everything on one trade
 - **P&L Calculation**: Automatic profit/loss calculations for each position
 - **Break-even Management**: Automatic stop-loss adjustment to break even when profitable
 - **Position Closing**: Streamlined closure with confirmation modal
